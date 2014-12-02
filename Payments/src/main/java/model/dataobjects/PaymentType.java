@@ -13,7 +13,11 @@ public enum PaymentType {
     private String name;
     
     private PaymentType(String name) {
-		name = name;
+		this.name = name;
 	}
-	
+
+	public String getName() {
+		return name;
+	}
+    
 }

@@ -56,6 +56,11 @@ public class Transaction {
 	public void setType(PaymentType type) {
 		this.type = type;
 	}
-
-
+	
+	public Double getRealAmount(){
+		if (amount!=null) {
+			return amount /100.00;
+		}
+		return null;
+	}
 }

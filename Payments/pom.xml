@@ -40,10 +40,11 @@
         	<groupId>org.springframework.boot</groupId>
         	<artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+
     </dependencies>
 
     <properties>
-        <start-class>hello.Application</start-class>
+        <start-class>main.Application</start-class>
     </properties>
 
     <build>
