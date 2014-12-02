@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Handing Form Submission</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+	<h1>Result</h1>
+    <div th:each="transaction : ${transactions}">
+    	<span th:text="${transaction.type}"></span>
+    	<br /><span th:text="${transaction.account.name}"></span> <span th:text="${transaction.account.id}"></span>
+    	<br /><span th:text="${transaction.amount}"></span>
+    </div>
+
+	<h1>Form</h1>
+    <form action="#" th:action="@{/payments}" th:object="${paymentForm}" method="post">
+    	<p>Name: <input type="text" th:field="*{name}" /></p>        
+        <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+    </form>
+</body>
+</html>
