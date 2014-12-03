@@ -1,5 +1,7 @@
 package model.dataobjects;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -9,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 
 @Entity
 public class Transaction {
@@ -27,15 +30,33 @@ public class Transaction {
 	@Column(nullable = false)
 	private Long amount;
 	
+	@Column(nullable=false)
+	private Date date;
 	
+
 	protected Transaction() {}
 
+	@PrePersist
+	protected void onCreate() {
+		date = new Date();
+	}
+
+	
     public Transaction(PaymentType type, User account, Long amount) {
         this.type = type;
         this.account = account;
         this.amount = amount;
     }
+    
 	
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 	public User getAccount() {
 		return account;
 	}
