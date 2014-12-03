@@ -2,7 +2,7 @@ package model.persistence;
 
 import java.util.List;
 
-import model.dataobjects.Transaction;
+import model.dataobjects.Payment;
 import model.dataobjects.User;
 
 import org.springframework.data.repository.CrudRepository;

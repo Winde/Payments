@@ -12,12 +12,15 @@ public class PaymentForm {
 
 	@NotNull
 	@NotBlank
-	private String name;	
+	private String name;
+	
 	private PaymentType type;
 	
 	@NotNull
 	@DecimalMin("0.01")
 	private Double amount;
+		
+	private Boolean income = Boolean.FALSE; 
 	
 	
 	public String getName() {
@@ -44,7 +47,20 @@ public class PaymentForm {
 		this.amount = amount;
 	}
 
+	public Boolean getIncome() {
+		return income;
+	}
 
+	public void setIncome(Boolean income) {
+		this.income = income;
+	}
+
+
+	public void clear() {
+		this.name = null;
+		this.type = null;
+		this.amount = null; 
+	}
 	
 	
 	

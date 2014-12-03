@@ -14,7 +14,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 
 @Entity
-public class Transaction {
+public class Payment{
 
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -33,8 +33,10 @@ public class Transaction {
 	@Column(nullable=false)
 	private Date date;
 	
-
-	protected Transaction() {}
+	@Column(nullable=false)
+	private String currency = "EUR";
+	
+	protected Payment() {}
 
 	@PrePersist
 	protected void onCreate() {
@@ -42,10 +44,10 @@ public class Transaction {
 	}
 
 	
-    public Transaction(PaymentType type, User account, Long amount) {
+    public Payment(PaymentType type, User account, Long amount) {
         this.type = type;
         this.account = account;
-        this.amount = amount;
+        this.amount = amount;        
     }
     
 	

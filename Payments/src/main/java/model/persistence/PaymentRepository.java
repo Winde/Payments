@@ -1,15 +1,21 @@
 package model.persistence;
 
+import java.util.Date;
 import java.util.List;
 
-import model.dataobjects.Transaction;
+import model.dataobjects.Payment;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PaymentRepository extends CrudRepository<Transaction,Long> {
+public interface PaymentRepository extends CrudRepository<Payment,Long> {
 		
-	List<Transaction> findAll();
+	List<Payment> findAll();
+	
+	@Query("select t from Payment t " +
+	         "where t.date between ?1 and ?2")
+	List<Payment> findByDateBetween(Date beginning, Date end);
 }
 
