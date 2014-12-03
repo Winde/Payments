@@ -1,9 +1,15 @@
 package web.controllers;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.validation.Valid;
 
@@ -20,6 +26,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import web.forms.PaymentForm;
 
@@ -71,6 +79,7 @@ public class Payments {
 			
 			Transaction transaction = new Transaction(paymentForm.getType(),user,amount);				
 			payments.save(transaction);
+			model.addAttribute("statusCode","success");
 		}
 		
 
@@ -81,30 +90,73 @@ public class Payments {
 	public String transactions(Model model){
 		List<Transaction> transactions = payments.findAll();
 		
-		Map<PaymentType,List<Transaction>> transactionMap = new HashMap<>();
-		Map<PaymentType,Double> transactionStatistics = new HashMap<>();
-		if (transactions!=null){
-			for (Transaction transaction: transactions) {
-				PaymentType type = transaction.getType();
-				List<Transaction> listTransactions = transactionMap.get(type);
-				Double value = transactionStatistics.get(type);
-				if (listTransactions==null){
-					listTransactions = new ArrayList<>();					
-					transactionMap.put(type,listTransactions);
-				}		
-				if (value ==null) {
-					value = new Double(0.0);
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/YYYY");
+		
+		/*
+		Map<String,Map<PaymentType,Double>> result = new TreeMap<>();
+		
+		for (Transaction transaction: transactions) {
+			Date date = transaction.getDate();
+			PaymentType type = transaction.getType();
+			if (date!=null && type!=null){
+				String key = format.format(date);
+				Map<PaymentType, Double> mapForDate = result.get(key);
+				if (mapForDate==null) {
+					mapForDate = new TreeMap<>();
+					for (PaymentType iteration : PaymentType.values()) {
+						mapForDate.put(iteration, new Double(0.0));
+					}
+					result.put(key,mapForDate);
 				}
-			
-				listTransactions.add(transaction);
-				value = new Double(value + (transaction.getAmount()/100));
-				transactionStatistics.put(type,value);
+				Double amount = mapForDate.get(type);
+				if (amount ==null) { amount = new Double(0.0); }
+				amount = amount + transaction.getRealAmount();
+				mapForDate.put(type, amount);				
+			}						
+		}
+		*/
+		
+		
+		Map<PaymentType,Map<String,Double>> result = new TreeMap<>();
+		Set<String> dates = new HashSet<>();
+		
+		for (Transaction transaction: transactions) {
+			Date date = transaction.getDate();
+			PaymentType type = transaction.getType();
+			if (date!=null && type!=null){
+				String key = format.format(date);
+				Map<String, Double> mapForType = result.get(type);
+				if (mapForType==null) {
+					mapForType = new TreeMap<>();					
+					result.put(type,mapForType);
+				}
+				Double amount = mapForType.get(key);
+				if (amount ==null) { amount = new Double(0.0); }
+				amount = amount + transaction.getRealAmount();								
+				mapForType.put(key, amount);				
+				for (PaymentType iteration: result.keySet() ){
+					Double amountForCombination = result.get(iteration).get(key);
+					if (amountForCombination==null) {
+						 result.get(iteration).put(key,new Double(0.0));
+					}					
+				}
 				
-			}	
+				dates.add(key);
+				
+			}						
 		}
 		
-		model.addAttribute("statistics", transactionStatistics);
-		model.addAttribute("transactions", transactionMap);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			mapper.writeValue(System.out, result);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		model.addAttribute("dates",dates);
+		model.addAttribute("statistics",result);
 		
 		return "transactions";
 	}

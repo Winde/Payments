@@ -11,11 +11,6 @@
 
 <link href="/css/custom.css" th:href="@{/css/custom.css}" rel="stylesheet" />
 
-<link href="/jquery-visualize/css/visualize.css" th:href="@{/jquery-visualize/css/visualize.css}" rel="stylesheet" />
-<link href="/jquery-visualize/css/visualize-light.css" th:href="@{/jquery-visualize/css/visualize-light.css}" rel="stylesheet" />
-
-<link href="/tablebarchart-master/TableBarChart.css" th:href="@{/tablebarchart-master/TableBarChart.css}" rel="stylesheet" />
-
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
@@ -63,13 +58,9 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<th scope="row">Carlos</th>
-						<td th:each="statisticsEntry : ${statistics}" th:text="${statisticsEntry.value}"></td>						 
-					</tr>
-					<tr>	
-						<th scope="row">Pablo</th>
-						<td th:each="statisticsEntry : ${statistics}" th:text="${statisticsEntry.value}"></td>						 
+					<tr th:each="date : ${dates}">
+						<th scope="row" th:text="${date}"></th>
+						<td th:each="statisticsEntry : ${statistics}" th:text="${statisticsEntry.value[date]}">test</td>						 
 					</tr>
 				</tbody>
 			
@@ -82,16 +73,7 @@
 	<!-- /.container -->
  
 <script src="/bootstrap/js/bootstrap.min.js" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
-<script src="/jquery-visualize/js/visualize.jQuery.js" th:src="@{/jquery-visualize/js/visualize.jQuery.js}"></script>
-<script src="/tablebarchart-master/TableBarChart.js" th:src="@{/tablebarchart-master/TableBarChart.js}"></script>
-<script>
-	jQuery(document).ready(function(){	
-		
-		$('table').visualize();
-	});
-	
 
-</script>
 </body>
 </html>
 
