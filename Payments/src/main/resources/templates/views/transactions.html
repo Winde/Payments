@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+
+<body>
+
+	<div class="container"  th:fragment="content">
+
+			
+		<div class="starter-template">
+			<h1>Transactions</h1>
+			
+			
+			<div class="alert alert-warning" th:if="${statisticsFull==null or statisticsFull.isEmpty()}">
+				No data available
+			</div>
+			
+			<table class="table" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
+				<thead>
+					<tr>
+						<td></td>
+						<th scope="col" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.key}"></th>					
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="date : ${dates}">
+						<th scope="row" th:text="${date}"></th>
+						<td th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.value.get(date)}"></td>						 
+					</tr>
+				</tbody>
+			
+			</table>
+			
+
+		</div>
+
+	</div>
+	<!-- /.container -->
+
+</body>
+</html>
+
