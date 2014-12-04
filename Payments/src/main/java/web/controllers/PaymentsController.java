@@ -37,10 +37,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import thymeleaf.templating.Layout;
 import web.assisting.Statistic;
 import web.forms.PaymentForm;
 
 @Controller
+@Layout(value = "layouts/default")
 public class PaymentsController {
     
 	@Autowired
@@ -54,7 +56,7 @@ public class PaymentsController {
 	
 	@RequestMapping(value="/payments", method=RequestMethod.GET)
     public String paymentGET(@ModelAttribute PaymentForm paymentForm, Model model) {	
-        return "payment";
+        return "views/payment";
     }
 	
 	@RequestMapping(value="/payments", method=RequestMethod.POST)
@@ -98,7 +100,7 @@ public class PaymentsController {
 		}
 		
 
-        return "payment";
+        return "views/payment";
     }
  
 	@RequestMapping(value="/statistics/{month}")
@@ -131,10 +133,11 @@ public class PaymentsController {
 		model.addAttribute("stackedChart",stackedChart);
 		
 		
-		return "statistics";
+		return "views/statistics";
 	}
 	
-	@RequestMapping(value="/transactions/{month}")
+	
+	@RequestMapping(value={"/transactions/{month}","/transactions"})
 	public String transactions(@PathVariable String month, Model model){
 		Date date = null;
 		if (month!=null) {
@@ -178,7 +181,7 @@ public class PaymentsController {
 		model.addAttribute("dates",dates);
 		model.addAttribute("statisticsFull",table);
 
-		return "transactions";
+		return "views/transactions";
 	}
 	
 	private Date getMonthFromString(String dateString){

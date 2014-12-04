@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+<body>
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Home</h1>
+
+			<div class="" role="group" th:each="month : ${months}">
+				<div>
+					<a class="btn" href="#"
+						th:href="@{/statistics/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"
+						th:text="${#calendars.format(month, 'MMMM yyyy')}"></a> <a
+						href="#"
+						th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"><span
+						class="btn glyphicon glyphicon-zoom-in" aria-hidden="true"></span></a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>
