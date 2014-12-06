@@ -69,7 +69,8 @@ public class PaymentsController {
 				IncomeEntry incomeEntry = new IncomeEntry(user,amount);
 				incomeEntries.save(incomeEntry);
 			}else {
-				Payment transaction = new Payment(paymentForm.getType(),user,amount);				
+				Payment transaction = new Payment(paymentForm.getType(),user,amount);
+				transaction.setComments(paymentForm.getComments());
 				payments.save(transaction);
 			}
 			

@@ -15,9 +15,22 @@ public class PaymentForm {
 	@NotNull
 	@DecimalMin("0.01")
 	private Double amount;
+	
+	private String comments;
 		
 	private Boolean income = Boolean.FALSE; 
 	
+	
+	
+	
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
 	public PaymentType getType() {
 		return type;
 	}

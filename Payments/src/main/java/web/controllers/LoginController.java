@@ -20,7 +20,7 @@ public class LoginController {
 	
 	@RequestMapping(value="/login", method=RequestMethod.POST)
 	public String loginPOST(HttpServletRequest request){
-		return "redirect:/home";
+		return "redirect:/payments";
 	}
 	
 	/*

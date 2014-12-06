@@ -6,6 +6,7 @@ public enum PaymentType {
     Other("Other"),
     Groceries("Groceries"),
     Eating_Out("Eating Out"),
+    Coffee("Coffee"),
     Internet_Phone("Internet & Phone"),
     Entertainment("Entertainment"),
     Transportation("Transportation");

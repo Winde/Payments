@@ -33,6 +33,9 @@ public class Payment{
 	@Column(nullable=false)
 	private Date date;
 	
+	@Column
+	private String comments;
+	
 	@Column(nullable=false)
 	private String currency = "EUR";
 	
@@ -44,13 +47,25 @@ public class Payment{
 	}
 
 	
+	
+	
     public Payment(PaymentType type, User account, Long amount) {
         this.type = type;
         this.account = account;
         this.amount = amount;        
     }
     
+    
+    
 	
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
 	public Date getDate() {
 		return date;
 	}
