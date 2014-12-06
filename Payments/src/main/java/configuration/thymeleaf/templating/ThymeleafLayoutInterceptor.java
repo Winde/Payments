@@ -1,4 +1,4 @@
-package thymeleaf.templating;
+package configuration.thymeleaf.templating;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

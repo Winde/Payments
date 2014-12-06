@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+	  xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -7,10 +9,10 @@
 <title>Bootstrap 101 Template</title>
 
 <!-- Bootstrap -->
-<link href="/bootstrap/css/bootstrap.min.css"
-	th:href="@{/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
+<link href="/resources/bootstrap/css/bootstrap.min.css"
+	th:href="@{/resources/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
 
-<link href="/css/custom.css" th:href="@{/css/custom.css}"
+<link href="/resources/css/custom.css" th:href="@{/resources/css/custom.css}"
 	rel="stylesheet" />
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -30,7 +32,7 @@
 	<div class="container" th:replace="${view} :: content">Content</div>
 	<!-- /.container -->
 
-	<script src="/bootstrap/js/bootstrap.min.js"
-		th:href="@{/bootstrap/js/bootstrap.min.js}"></script>
+	<script src="/resources/bootstrap/js/bootstrap.min.js"
+		th:href="@{/resources/bootstrap/js/bootstrap.min.js}"></script>
 </body>
 </html>

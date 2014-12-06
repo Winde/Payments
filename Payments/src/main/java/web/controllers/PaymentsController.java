@@ -1,24 +1,18 @@
 package web.controllers;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.validation.Valid;
 
 import model.dataobjects.IncomeEntry;
-import model.dataobjects.PaymentType;
 import model.dataobjects.Payment;
 import model.dataobjects.User;
 import model.persistence.IncomeRepository;
@@ -27,6 +21,7 @@ import model.persistence.UserRepository;
 import model.statistics.Statistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,11 +30,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import thymeleaf.templating.Layout;
 import web.assisting.Statistic;
 import web.forms.PaymentForm;
+import configuration.thymeleaf.templating.Layout;
 
 @Controller
 @Layout(value = "layouts/default")
@@ -47,10 +40,7 @@ public class PaymentsController {
     
 	@Autowired
 	private PaymentRepository payments;
-	
-	@Autowired
-	private UserRepository users;
-	
+
 	@Autowired
 	private IncomeRepository incomeEntries;
 	
@@ -70,22 +60,10 @@ public class PaymentsController {
 		if (result.hasErrors() || amount == null){
 		} else {
 		
-			String name = paymentForm.getName();
-			User user = null;
-			if (name!=null) {
-				List<User> listUsers = users.findByName(name);
-				if (listUsers!=null && listUsers.size()>0) {
-					user = listUsers.get(0);
-					
-				}
-			}
 			
-			if (user == null) {
-				user = new User();
-				user.setName(paymentForm.getName());				
-				users.save(user);
-			}
+			User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			
+			System.out.println(user.getAuthorities());
 			
 			if (Boolean.TRUE.equals(paymentForm.getIncome())) {			
 				IncomeEntry incomeEntry = new IncomeEntry(user,amount);

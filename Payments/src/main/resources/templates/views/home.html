@@ -10,16 +10,29 @@
 		<div class="starter-template">
 
 			<h1>Home</h1>
-
-			<div class="" role="group" th:each="month : ${months}">
-				<div>
-					<a class="btn" href="#"
+			<!-- 
+			<div class="btn-group-vertical" role="group">			
+				
+					<a th:each="month : ${months}" class="btn btn-default" href="#"
 						th:href="@{/statistics/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"
-						th:text="${#calendars.format(month, 'MMMM yyyy')}"></a> <a
-						href="#"
-						th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"><span
-						class="btn glyphicon glyphicon-zoom-in" aria-hidden="true"></span></a>
+						th:text="${#calendars.format(month, 'MMMM yyyy')}"></a>
+			</div>
+			<div class="btn-group-vertical" role="group">			
+					<a th:each="month : ${months}" class="btn btn-default glyphicon glyphicon-zoom-in" href="#"					
+						th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"></a>
+			</div>
+			-->
+			
+			<div class="btn-group-vertical" role="group">			
+				<div class="btn btn-default" th:each="month : ${months}">
+					<a  style="text-decoration: none; " href="#"
+						th:href="@{/statistics/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"
+						th:text="${#calendars.format(month, 'MMMM yyyy')}"></a>
+					<a style="float: right; text-decoration: none; margin-left: 15px" class="glyphicon glyphicon-zoom-in" href="#"					
+						th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"></a>	
+						
 				</div>
+					
 			</div>
 
 		</div>

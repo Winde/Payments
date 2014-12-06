@@ -9,10 +9,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import model.dataobjects.PaymentType;
 
 public class PaymentForm {
-
-	@NotNull
-	@NotBlank
-	private String name;
 	
 	private PaymentType type;
 	
@@ -22,15 +18,6 @@ public class PaymentForm {
 		
 	private Boolean income = Boolean.FALSE; 
 	
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public PaymentType getType() {
 		return type;
 	}
@@ -57,7 +44,6 @@ public class PaymentForm {
 
 
 	public void clear() {
-		this.name = null;
 		this.type = null;
 		this.amount = null; 
 	}

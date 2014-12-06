@@ -15,23 +15,23 @@
 			<div class="alert alert-warning" th:if="${statisticsFull==null or statisticsFull.isEmpty()}">
 				No data available
 			</div>
-			
-			<table class="table" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
-				<thead>
-					<tr>
-						<td></td>
-						<th scope="col" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.key}"></th>					
-					</tr>
-				</thead>
-				<tbody>
-					<tr th:each="date : ${dates}">
-						<th scope="row" th:text="${date}"></th>
-						<td th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.value.get(date)}"></td>						 
-					</tr>
-				</tbody>
-			
-			</table>
-			
+			<div class="table-responsive">
+				<table class="table" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
+					<thead>
+						<tr>
+							<td></td>
+							<th scope="col" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.key}"></th>					
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="date : ${dates}">
+							<th scope="row" th:text="${date}"></th>
+							<td th:each="statisticsEntry : ${statisticsFull}" th:text="${#numbers.formatDecimal(statisticsEntry.value.get(date),1,'POINT',2,'COMMA')}"></td>						 
+						</tr>
+					</tbody>
+				
+				</table>
+			</div>
 
 		</div>
 

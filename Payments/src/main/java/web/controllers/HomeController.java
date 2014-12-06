@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import thymeleaf.templating.Layout;
+import configuration.thymeleaf.templating.Layout;
 
 @Controller
 @Layout(value = "layouts/default")

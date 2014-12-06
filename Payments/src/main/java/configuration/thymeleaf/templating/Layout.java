@@ -1,4 +1,4 @@
-package thymeleaf.templating;
+package configuration.thymeleaf.templating;
 
 import java.lang.annotation.*;
  

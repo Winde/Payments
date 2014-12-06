@@ -6,11 +6,11 @@
 <body>
 
 	<div class="container" th:fragment="content">
-		<script src="/amcharts/amcharts.js" th:src="@{/amcharts/amcharts.js}"
+		<script src="/resources/amcharts/amcharts.js" th:src="@{/resources/amcharts/amcharts.js}"
 			type="text/javascript"></script>
-		<script src="/amcharts/pie.js" th:src="@{/amcharts/pie.js}"
+		<script src="/resources/amcharts/pie.js" th:src="@{/resources/amcharts/pie.js}"
 			type="text/javascript"></script>
-		<script src="/amcharts/serial.js" th:src="@{/amcharts/serial.js}"
+		<script src="/resources/amcharts/serial.js" th:src="@{/resources/amcharts/serial.js}"
 			type="text/javascript"></script>
 
 		<script type="text/javascript" th:inline="javascript"
@@ -110,6 +110,9 @@ AmCharts.ready(function () {
 /*]]>*/
 </script>
 		<div class="starter-template">
+			
+			<h1>Statistics</h1>
+		
 			<div class="alert alert-warning"
 				th:if="${(stackedChart==null or stackedChart.isEmpty()) and (pieChart==null or pieChart.isEmpty())}">
 				No data available</div>
