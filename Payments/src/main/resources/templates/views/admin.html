@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Admin</h1>
+
+		  	<form class="form-horizontal" role="form" action="#" th:action="@{/admin}" th:object="${userForm}"
+				method="post" autocomplete="off">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Name</label>
+					<div class="col-sm-10 input-group">
+						<input type="text" th:field="*{usernameText}" class="form-control" autocomplete="off" value=""/>
+					</div>					
+				</div>
+				<p class="red" th:if="${#fields.hasErrors('usernameText')}" th:errors="*{usernameText}"></p>
+				
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Password</label>
+					<div class="col-sm-10 input-group">
+						<input type="text" th:field="*{passwordText}" class="form-control" autocomplete="off" value="" />
+					</div>					
+				</div>
+				<p class="red" th:if="${#fields.hasErrors('passwordText')}" th:errors="*{passwordText}"></p>
+				
+								
+				<p>
+					<button class="btn" type="submit">Submit</button>
+				</p>
+			</form>
+		  
+
+			<div class="alert alert-success" th:if="${statusCode!=null and statusCode == 'success'}">
+				Success
+			</div>
+			
+			<div class="alert alert-warning" th:if="${statusCode!=null and statusCode == 'error'}">
+				Error
+			</div>
+			
+			
+			
+		</div>
+
+	</div>
+	<!-- /.container -->
+
+</body>
+</html>
+
