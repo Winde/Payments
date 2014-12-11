@@ -3,3 +3,7 @@ body {
 }
 .starter-template {
 }
+
+.chart a{
+    font-size: 0!important;
+}

@@ -3,7 +3,9 @@ package web.controllers;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.springframework.stereotype.Controller;
@@ -19,18 +21,24 @@ public class HomeController {
 	@RequestMapping(value="/")
 	public String home(Model model) {	
 
-		TreeSet<Date> months = new TreeSet<>( );
+		TreeMap<Integer,SortedSet<Date>> years = new TreeMap<>( );
 
 		Calendar now = Calendar.getInstance();
-
-		months.add(now.getTime());
-
-		for (int i=0;i<24;i++) {
+		
+		for (int i=0;i<25;i++) {
+			SortedSet<Date> set = years.get(now.get(Calendar.YEAR));
+			if (set ==null){
+				set = new TreeSet<>();
+				years.put(now.get(Calendar.YEAR),set);
+			}
+			set.add(now.getTime());
+			
+			
 			now.add(Calendar.MONTH,-1);
-			months.add(now.getTime());			
+					
 		}
 
-		model.addAttribute("months", months.descendingSet());
+		model.addAttribute("years", years.descendingMap());
 
 		return "views/home";
 	}

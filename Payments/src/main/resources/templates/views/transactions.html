@@ -1,13 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head th:fragment="header">
+	<title th:fragment="title">Transactions</title>
+	<!-- DataTables CSS -->
+		<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.css" />
+ 
+		<!-- DataTables -->
+		<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.js"></script>
+		
+	
+		<link href="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
+		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
+		
+		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/sorting/date-eu.js" type="text/javascript"></script>
+		<script>
+			jQuery(document).ready(function(){
+				$('#transactionsTable').DataTable( {
+				    paging: false,
+				    columnDefs: [
+				                 { type: 'date-eu', targets: 0 }
+				    ]
+				} );	
+			});
+			
+			
+		</script>
+
 </head>
 
 <body>
 
 	<div class="container"  th:fragment="content">
-
-			
+		
 		<div class="starter-template">
 			<h1>Transactions</h1>
 			
@@ -15,22 +39,62 @@
 			<div class="alert alert-warning" th:if="${statisticsFull==null or statisticsFull.isEmpty()}">
 				No data available
 			</div>
-			<div class="table-responsive">
-				<table class="table" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
-					<thead>
-						<tr>
-							<td></td>
-							<th scope="col" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.key}"></th>					
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="date : ${dates}">
-							<th scope="row" th:text="${date}"></th>
-							<td th:each="statisticsEntry : ${statisticsFull}" th:text="${#numbers.formatDecimal(statisticsEntry.value.get(date),1,'POINT',2,'COMMA')}"></td>						 
-						</tr>
-					</tbody>
-				
-				</table>
+			
+			<ul class="nav nav-tabs" role="tablist" id="myTab" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
+			  <li role="presentation" class="active"><a href="#summary" aria-controls="home" role="tab" data-toggle="tab">Summary</a></li>
+			  <li role="presentation"><a href="#transactions" aria-controls="profile" role="tab" data-toggle="tab">Transactions</a></li>		  
+			</ul>
+			
+			<div class="tab-content">
+			  <div role="tabpanel" class="tab-pane active" id="summary">
+					<div class="table-responsive">
+						<table class="table" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
+							<thead>
+								<tr>
+									<td></td>
+									<th scope="col" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.key}"></th>					
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="date : ${dates}">
+									<th scope="row" th:text="${date}"></th>
+									<td th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.value.get(date)!=null ? #numbers.formatDecimal(statisticsEntry.value.get(date),1,'POINT',2,'COMMA') : '0,00' }"></td>						 
+								</tr>
+							</tbody>
+						
+						</table>
+					</div>
+				</div>
+
+			  	<div role="tabpanel" class="tab-pane" id="transactions">
+					<div class="table-responsive">
+						<table class="table" id="transactionsTable" th:if="${((payments!=null and !payments.isEmpty()) or (income!=null and !income.isEmpty()))}">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Type</th>
+									<th>Amount</th>
+									<th>Comment</th>					
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="payment : ${payments}">							
+									<td th:text="${#calendars.format(payment.date,'dd/MM/yyyy')}"></td>						 
+									<td th:text="${payment.type}"></td>
+									<td th:text="${payment.realAmount}"></td>
+									<td th:text="${payment.comments}"></td>
+								</tr>
+								<tr th:each="incomeEntry : ${income}">							
+									<td th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
+									<td>Income</td>
+									<td th:text="${incomeEntry.realAmount}"></td>
+									<td></td>
+								</tr>
+							</tbody>
+						
+						</table>
+					</div>
+				</div>
 			</div>
 
 		</div>

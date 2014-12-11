@@ -18,6 +18,9 @@ public class Statistic {
 		this.value = value;
 	}
 	
+	public String toString(){
+		return "{title:'"+title+"',value:'"+value+"'}";
+	}
 	
 	
 }

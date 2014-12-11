@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
 
-<head>
+<head th:fragment="header">
+	<title>Home</title>
 </head>
 <body>
 	<div class="container" th:fragment="content">
@@ -22,17 +23,21 @@
 						th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"></a>
 			</div>
 			-->
-			
-			<div class="btn-group-vertical" role="group">			
-				<div class="btn btn-default" th:each="month : ${months}">
-					<a  style="text-decoration: none; " href="#"
-						th:href="@{/statistics/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"
-						th:text="${#calendars.format(month, 'MMMM yyyy')}"></a>
-					<a style="float: right; text-decoration: none; margin-left: 15px" class="glyphicon glyphicon-zoom-in" href="#"					
-						th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"></a>	
-						
+			<div style="margin: 0 auto; text-align: center">
+				<div th:each="year: ${years}" style="width: 200px; display: inline-block; vertical-align: top; margin-right: 20px; margin-top: 15px;">		
+				
+					<div class="btn-group-vertical" role="group" style="width: 100%">			
+						<div class="btn btn-default" th:each="month : ${year.value.descendingSet()}">
+							<a  style="text-decoration: none; " href="#"
+								th:href="@{/statistics/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"
+								th:text="${#calendars.format(month, 'MMMM yyyy')}"></a>
+							<a style="float: right; text-decoration: none; margin-left: 15px" class="glyphicon glyphicon-zoom-in" href="#"					
+								th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"></a>	
+								
+						</div>
+							
+					</div>
 				</div>
-					
 			</div>
 
 		</div>

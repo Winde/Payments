@@ -14,9 +14,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan({
-	"web.controllers", 
-	"configuration.thymeleaf.templating",
-	"configuration.security",
+	"web.controllers",
+	"configuration",
+	//"configuration.thymeleaf.templating",
+	//"configuration.security",
 	"model.authentication"
 })
 @EnableJpaRepositories(basePackages = {"model.persistence"})

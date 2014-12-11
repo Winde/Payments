@@ -159,7 +159,10 @@ public class PaymentsController {
 		
 		model.addAttribute("dates",dates);
 		model.addAttribute("statisticsFull",table);
-
+		
+		model.addAttribute("payments",transactionsNegative);
+		model.addAttribute("income",transactionsPositive);
+		
 		return "views/transactions";
 	}
 	
