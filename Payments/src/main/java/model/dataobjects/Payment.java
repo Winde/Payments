@@ -20,7 +20,7 @@ public class Payment{
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 	
-	@Column(nullable = false)
+	@Column
 	@Enumerated(EnumType.STRING)
 	private PaymentType type;
 	
@@ -39,15 +39,16 @@ public class Payment{
 	@Column(nullable=false)
 	private String currency = "EUR";
 	
-	protected Payment() {}
+	public Payment() {}
 
 	@PrePersist
 	protected void onCreate() {
-		date = new Date();
+		if (date==null){
+			date = new Date();
+		}
 	}
 
-	
-	
+
 	
     public Payment(PaymentType type, User account, Long amount) {
         this.type = type;
@@ -55,9 +56,11 @@ public class Payment{
         this.amount = amount;        
     }
     
-    
-    
 	
+	public Long getId() {
+		return id;
+	}
+
 	public String getComments() {
 		return comments;
 	}

@@ -14,16 +14,73 @@
 		
 		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/sorting/date-eu.js" type="text/javascript"></script>
 		<script>
+		/*<![CDATA[*/
+			
 			jQuery(document).ready(function(){
+				var hash = window.location.hash;
+				if(hash!=null && hash!=undefined && hash.indexOf("transactions")>=0){
+					jQuery('#myTab #tabButtonSummary, #summary').removeClass('active');
+					jQuery('#myTab #tabButtonTransactions, #transactions').addClass('active');
+				}	
+				
+				$('.autoSend select').change(function(){
+					var current = jQuery(this);
+					var form = current.closest('form');
+										
+					if (current.val()!=""){
+						form.submit();
+					}
+					
+				});
+				
+				$('#summaryTable').DataTable( {
+				    paging: false,
+				    columnDefs: [
+				                 { type: 'date-eu', targets: 0 }
+				    ],
+				    "sDom": '<"top">t<"bottom"><"clear">',
+				    "footerCallback": function ( row, data, start, end, display ) {
+			            			 			           
+			        },
+			        "fnDrawCallback": function (oSettings) {
+			            // Get all rows of your table
+			            var nTrs = $('#summaryTable').find('tbody tr');
+			            for (var j=0;j<nTrs.length;j++){
+				            var element = nTrs.index(j);
+				            var sum = 0;
+				            var elements = false;
+				            for (var i = 0; i < nTrs.length; i++) {
+				                 var iDisplayIndex = oSettings._iDisplayStart + i;
+				                 var dataIndex = oSettings.aiDisplay[iDisplayIndex];
+				                 var value = oSettings.aoData[dataIndex]._aData[j];
+				                 if (value!=null && value!=undefined) {
+				                	 value = value.replace(".","")
+				                	 value = value.replace(",",".")
+				                 }
+				                 var num = Number(value);
+				                 if (!isNaN(num)){
+				                	 elements = true;
+				                	 sum += num;
+				                 }				                 
+				            }
+				            // Insert sum at the end
+				            if (elements){
+				            	$('#summaryTable').find('tfoot td:nth-child('+(j+1)+')').text(sum.toLocaleString());
+				            }
+				            
+			            }
+			        
+			        }
+				});	
 				$('#transactionsTable').DataTable( {
 				    paging: false,
 				    columnDefs: [
 				                 { type: 'date-eu', targets: 0 }
-				    ]
-				} );	
+				    ],
+				    "sDom": '<"top"i>rft<"bottom"lp><"clear">'
+				});	
 			});
-			
-			
+		/*]]>*/	
 		</script>
 
 </head>
@@ -36,25 +93,37 @@
 			<h1>Transactions</h1>
 			
 			
-			<div class="alert alert-warning" th:if="${statisticsFull==null or statisticsFull.isEmpty()}">
+			<div class="alert alert-warning" th:if="${
+			(statisticsFull==null or statisticsFull.isEmpty()) and 
+			(payments==null or payments.isEmpty()) and
+			(income==null or income.isEmpty())}">
 				No data available
 			</div>
 			
-			<ul class="nav nav-tabs" role="tablist" id="myTab" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
-			  <li role="presentation" class="active"><a href="#summary" aria-controls="home" role="tab" data-toggle="tab">Summary</a></li>
-			  <li role="presentation"><a href="#transactions" aria-controls="profile" role="tab" data-toggle="tab">Transactions</a></li>		  
+			<ul class="nav nav-tabs" role="tablist" id="myTab" th:if="${
+			(statisticsFull!=null and !statisticsFull.isEmpty()) or 
+			(payments!=null and !payments.isEmpty()) or
+			(income!=null and !income.isEmpty())}">
+			  <li role="presentation" class="active" id="tabButtonSummary"><a href="#summary" aria-controls="home" role="tab" data-toggle="tab">Summary</a></li>
+			  <li role="presentation" id="tabButtonTransactions"><a href="#transactions" aria-controls="profile" role="tab" data-toggle="tab">Transactions</a></li>		  
 			</ul>
 			
 			<div class="tab-content">
 			  <div role="tabpanel" class="tab-pane active" id="summary">
 					<div class="table-responsive">
-						<table class="table" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
+						<table class="table" id="summaryTable" th:if="${statisticsFull!=null and !statisticsFull.isEmpty()}">
 							<thead>
 								<tr>
-									<td></td>
+									<th></th>
 									<th scope="col" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.key}"></th>					
 								</tr>
 							</thead>
+							<tfoot>
+					            <tr>
+					            	<td></td>					                
+					                <td th:each="statisticsEntry : ${statisticsFull}"></td>
+					            </tr>
+					        </tfoot>
 							<tbody>
 								<tr th:each="date : ${dates}">
 									<th scope="row" th:text="${date}"></th>
@@ -66,29 +135,42 @@
 					</div>
 				</div>
 
-			  	<div role="tabpanel" class="tab-pane" id="transactions">
+			  	<div role="tabpanel" class="tab-pane" id="transactions" style="padding-top: 10px">
 					<div class="table-responsive">
-						<table class="table" id="transactionsTable" th:if="${((payments!=null and !payments.isEmpty()) or (income!=null and !income.isEmpty()))}">
+						<table class="table"  id="transactionsTable" th:if="${((payments!=null and !payments.isEmpty()) or (income!=null and !income.isEmpty()))}">
 							<thead>
 								<tr>
 									<th>Date</th>
 									<th>Type</th>
 									<th>Amount</th>
-									<th>Comment</th>					
+									<th>Comment</th>	
+									<th>Delete</th>				
 								</tr>
 							</thead>
 							<tbody>
 								<tr th:each="payment : ${payments}">							
 									<td th:text="${#calendars.format(payment.date,'dd/MM/yyyy')}"></td>						 
-									<td th:text="${payment.type}"></td>
+									<td><span th:text="${payment.type}"></span>
+										<form class="autoSend" th:if="${payment.type==null}" th:action="@{/typeTransaction}" >
+											<input type="hidden" name="id" th:value="${payment.id}" />
+											<select name="type">
+												<option value="">Unknown</option>
+												<option 
+													th:each="paymentType : ${T(model.dataobjects.PaymentType).values()}"
+													th:value="${paymentType}" th:text="${paymentType.name}"></option>
+											</select>
+										</form>									
+									</td>
 									<td th:text="${payment.realAmount}"></td>
 									<td th:text="${payment.comments}"></td>
+									<td><a href="" th:href="@{/deleteTransaction/{id}(id=${payment.id})}">Delete</a></td>
 								</tr>
 								<tr th:each="incomeEntry : ${income}">							
 									<td th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
 									<td>Income</td>
 									<td th:text="${incomeEntry.realAmount}"></td>
-									<td></td>
+									<td th:text="${incomeEntry.comments}"></td>
+									<td><a href="" th:href="@{/deleteIncome/{id}(id=${incomeEntry.id})}">Delete</a></td>
 								</tr>
 							</tbody>
 						

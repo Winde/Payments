@@ -1,5 +1,6 @@
 package web.controllers;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -10,14 +11,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import model.dataobjects.IncomeEntry;
 import model.dataobjects.Payment;
+import model.dataobjects.PaymentType;
 import model.dataobjects.User;
+import model.dataobjects.reader.EVOReader;
+import model.dataobjects.reader.INGReader;
+import model.dataobjects.reader.StatementReader;
 import model.persistence.IncomeRepository;
 import model.persistence.PaymentRepository;
-import model.persistence.UserRepository;
+import model.statistics.Movements;
 import model.statistics.Statistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +35,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import web.assisting.Statistic;
 import web.forms.PaymentForm;
@@ -48,6 +56,7 @@ public class PaymentsController {
     public String paymentGET(@ModelAttribute PaymentForm paymentForm, Model model) {	
         return "views/payment";
     }
+	
 	
 	@RequestMapping(value="/payments", method=RequestMethod.POST)
     public String paymentPOST(@Valid @ModelAttribute PaymentForm paymentForm, BindingResult result, Model model) {
@@ -81,6 +90,98 @@ public class PaymentsController {
 
         return "views/payment";
     }
+	
+	@RequestMapping(value="/uploadBank", method=RequestMethod.POST)
+    public String ignPOST(@RequestParam("file") MultipartFile file,@RequestParam("bank") String bank, Model model) {
+
+		User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		StatementReader reader = null;
+		if ("EVO".equals(bank)){
+			reader = new EVOReader();
+		} else if ("ING".equals(bank)){
+			reader = new INGReader();
+		}
+		if (reader!=null){
+			Movements movements = null;
+			try {
+				movements = reader.getMovements(user, file.getInputStream());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+			if (movements!=null && movements.getIncomeEntries()!=null) {
+				incomeEntries.save(movements.getIncomeEntries());
+			}
+			if (movements!=null && movements.getPayments()!=null) {
+				payments.save(movements.getPayments());
+			}
+			if (movements!=null){		
+				model.addAttribute("statusCode","success");			
+			} else {
+				model.addAttribute("statusCode","error");
+			}
+		} else {
+			model.addAttribute("statusCode","error");
+		}
+		return "redirect:/transactions";
+    }
+	
+	
+	@RequestMapping(value="/deleteIncome/{id}")
+    public String deleteIncome(@PathVariable String id, Model model, HttpServletRequest request) {
+		
+		Long idNum = Long.parseLong(id);
+
+		try {
+			incomeEntries.delete(idNum);
+		}catch (Exception ex){
+			ex.printStackTrace();
+			model.addAttribute("statusCode","error");
+		}
+		
+		String referer = request.getHeader("Referer");
+		return "redirect:"+ referer + "#transactions";
+
+	}
+	
+	@RequestMapping(value="/deleteTransaction/{id}")
+    public String deleteTransaction(@PathVariable String id, Model model, HttpServletRequest request) {
+		
+		Long idNum = Long.parseLong(id);
+		try {
+			payments.delete(idNum);
+		}catch (Exception ex){
+			ex.printStackTrace();
+			model.addAttribute("statusCode","error");
+		}
+		
+		String referer = request.getHeader("Referer");
+		return "redirect:"+ referer + "#transactions";
+
+	}
+	
+	@RequestMapping(value="/typeTransaction")
+    public String typeTransaction(@RequestParam("id") String id,@RequestParam("type") String type, Model model, HttpServletRequest request) {
+		
+		Long idNum = Long.parseLong(id);
+		Payment payment = payments.findOne(idNum);
+		
+		payment.setType(PaymentType.valueOf(type));
+		
+		try {
+			payments.save(payment);
+		}catch (Exception ex){
+			ex.printStackTrace();
+			model.addAttribute("statusCode","error");
+		}
+		
+		
+		String referer = request.getHeader("Referer");
+		return "redirect:"+ referer + "#transactions";
+
+	}
  
 	@RequestMapping(value="/statistics/{month}")
 	public String statistics(@PathVariable String month, Model model){
@@ -115,14 +216,20 @@ public class PaymentsController {
 		return "views/statistics";
 	}
 	
+	@RequestMapping(value={"/transactions/","/transactions"})
+	public String transactions(Model model){
+		return transactions(null,model);
+	}
 	
-	@RequestMapping(value={"/transactions/{month}","/transactions"})
+	@RequestMapping(value={"/transactions/{month}"})
 	public String transactions(@PathVariable String month, Model model){
 		Date date = null;
 		if (month!=null) {
 			date = getMonthFromString(month);
+		} else {
+			date = new Date(); 
 		}
-		
+
 		List<Payment> transactionsNegative = null;
 		List<IncomeEntry> transactionsPositive = null;
 		
@@ -135,11 +242,11 @@ public class PaymentsController {
 			Date from = calendar.getTime();
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			Date to = calendar.getTime();
+			
 			transactionsNegative = payments.findByDateBetween(from, to);
 			transactionsPositive = incomeEntries.findByDateBetween(from, to);
 		}
-		
-		
+				
 		Map<String, Map<String, Double>> table = Statistics.getTablePayments(transactionsNegative);
 		
 		Map<String, Double> tableIncome = Statistics.getTableIncome(transactionsPositive);
@@ -156,7 +263,7 @@ public class PaymentsController {
 				dates.addAll(current.keySet());
 			}
 		}
-		
+
 		model.addAttribute("dates",dates);
 		model.addAttribute("statisticsFull",table);
 		

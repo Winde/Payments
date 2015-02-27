@@ -15,20 +15,19 @@
 					method="post">
 
 					<div class="form-group">
-						<label class="col-sm-2 control-label">Amount</label>
-						<div class="col-sm-10 input-group">
+						<label class="col-sm-2 col-xs-12 control-label">Amount</label>
+						<div class="col-sm-10 col-xs-12 input-group">
 							<input type="number" min="0" step="0.01" th:field="*{amount}" class="form-control" />
 							<span class="input-group-addon">&euro;</span>
 						</div>					
 					</div>
 					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>	
 						
-					<p>
+					<div class="form-group">
 						<button class="btn" type="submit">Submit</button>
-					</p>
+					</div>
 			</form>
-			 
-
+					
 			<div class="alert alert-success" th:if="${statusCode!=null}">
 				Success
 			</div>

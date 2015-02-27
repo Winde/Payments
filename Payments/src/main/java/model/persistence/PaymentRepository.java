@@ -17,5 +17,9 @@ public interface PaymentRepository extends CrudRepository<Payment,Long> {
 	@Query("select t from Payment t " +
 	         "where t.date between ?1 and ?2")
 	List<Payment> findByDateBetween(Date beginning, Date end);
+
+	@Query("select t from Payment t " +
+	         "where t.date > ?1")
+	List<Payment> findAfter(Date date);
 }
 

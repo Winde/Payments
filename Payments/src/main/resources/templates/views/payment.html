@@ -22,9 +22,9 @@
 					method="post">
 	
 					<div class="form-group">			
-						<label class="col-sm-2 control-label">Type</label>
+						<label class="col-sm-2 col-xs-12 control-label">Type</label>
 						
-						<div class="col-sm-10 input-group">
+						<div class="col-sm-10 col-xs-12 input-group">
 							<select th:field="*{type}" class="form-control">
 							  	<option
 										th:each="paymentType : ${T(model.dataobjects.PaymentType).values()}"
@@ -34,23 +34,23 @@
 					</div>
 					<p th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
 					<div class="form-group">
-						<label class="col-sm-2 control-label">Amount</label>
-						<div class="col-sm-10 input-group">
+						<label class="col-sm-2 col-xs-12 control-label">Amount</label>
+						<div class="col-sm-10 col-xs-12 input-group">
 							<input type="number" min="0" step="0.01" th:field="*{amount}" class="form-control" />
 							<span class="input-group-addon">&euro;</span>
 						</div>					
 					</div>
 					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>	
 					<div class="form-group">
-						<label class="col-sm-2 control-label">Comments</label>
-						<div class="col-sm-10 input-group">
-							<input type="text" th:field="*{comments}" class="form-control" />
+						<label class="col-sm-2 col-xs-12 control-label">Comments</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<textarea type="text" th:field="*{comments}" class="form-control" ></textarea>
 						</div>					
 					</div>
 					<p class="red" th:if="${#fields.hasErrors('comments')}" th:errors="*{comments}"></p>	
-					<p>
+					<div class="form-group">
 						<button class="btn" type="submit">Submit</button>
-					</p>
+					</div>
 				</form>
 			  </div>
 			  <div role="tabpanel" class="tab-pane" id="income" th:classappend="${(paymentForm!=null and paymentForm.income) ? 'active' : ''}">
@@ -58,20 +58,44 @@
 					method="post">
 					<input type="hidden" name="income" value="true" />
 					<div class="form-group">
-						<label class="col-sm-2 control-label">Amount</label>
-						<div class="col-sm-10 input-group">
+						<label class="col-sm-2 col-xs-12 control-label">Amount</label>
+						<div class="col-sm-10 col-xs-12 input-group">
 							<input type="number" min="0" step="0.01" th:field="*{amount}" class="form-control" />
 							<span class="input-group-addon">&euro;</span>
 						</div>					
 					</div>
 					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>				
-					<p>
+					<div class="form-group">
 						<button class="btn" type="submit">Submit</button>
-					</p>
+					</div>
 				</form>
 			  </div>
 
 			</div>
+
+			<h1>Upload Bank Statement</h1>
+			<form class="form-horizontal" role="form" action="#" th:action="@{/uploadBank}" enctype="multipart/form-data" method="post">
+
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Bank</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<select name="bank" class="form-control">
+								<option value="ING">ING</option>
+								<option value="EVO">EVO</option> 
+							</select>							
+						</div>	
+						<label class="col-sm-2 col-xs-12 control-label">File</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="file" name="file" class="form-control" />							
+						</div>					
+					</div>	
+						
+					<div class="form-group">
+						<button class="btn" type="submit">Submit</button>
+					</div>
+			</form>
+			
+
 
 			<div class="alert alert-success" th:if="${statusCode!=null}">
 				Success

@@ -14,25 +14,25 @@
 		  	<form class="form-horizontal" role="form" action="#" th:action="@{/admin}" th:object="${userForm}"
 				method="post" autocomplete="off">
 				<div class="form-group">
-					<label class="col-sm-2 control-label">Name</label>
-					<div class="col-sm-10 input-group">
+					<label class="col-sm-2 col-xs-12 control-label">Name</label>
+					<div class="col-sm-10 col-xs-12 input-group">
 						<input type="text" th:field="*{usernameText}" class="form-control" autocomplete="off" value=""/>
 					</div>					
 				</div>
 				<p class="red" th:if="${#fields.hasErrors('usernameText')}" th:errors="*{usernameText}"></p>
 				
 				<div class="form-group">
-					<label class="col-sm-2 control-label">Password</label>
-					<div class="col-sm-10 input-group">
+					<label class="col-sm-2 col-xs-12 control-label">Password</label>
+					<div class="col-sm-10 col-xs-12 input-group">
 						<input type="text" th:field="*{passwordText}" class="form-control" autocomplete="off" value="" />
 					</div>					
 				</div>
 				<p class="red" th:if="${#fields.hasErrors('passwordText')}" th:errors="*{passwordText}"></p>
 				
 								
-				<p>
+				<div class="form-group">
 					<button class="btn" type="submit">Submit</button>
-				</p>
+				</div>
 			</form>
 		  
 

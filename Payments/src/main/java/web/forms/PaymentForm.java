@@ -10,6 +10,7 @@ import model.dataobjects.PaymentType;
 
 public class PaymentForm {
 	
+	@NotNull
 	private PaymentType type;
 	
 	@NotNull

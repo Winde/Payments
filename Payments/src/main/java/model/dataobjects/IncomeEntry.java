@@ -29,16 +29,24 @@ public class IncomeEntry{
 	@Column(nullable=false)
 	private String currency = "EUR";
 
+	@Column
+	private String comments;
 	
-	protected IncomeEntry() {}
+	public IncomeEntry() {}
 
 	@PrePersist
 	protected void onCreate() {
-		date = new Date();
+		if (date==null){
+			date = new Date();
+		}
 	}
 
 	
-    public IncomeEntry(User account, Long amount) {
+    public Long getId() {
+		return id;
+	}
+
+	public IncomeEntry(User account, Long amount) {
         this.account = account;
         this.amount = amount;        
     }
@@ -81,4 +89,14 @@ public class IncomeEntry{
 		}
 		return null;
 	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+	
+	
 }

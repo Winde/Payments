@@ -7,3 +7,11 @@ body {
 .chart a{
     font-size: 0!important;
 }
+
+.form-horizontal {
+	padding: 20px;
+}
+
+table.dataTable tfoot th, table.dataTable tfoot td {
+	padding: 8px 10px !important;
+}

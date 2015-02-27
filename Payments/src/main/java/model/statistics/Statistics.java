@@ -157,8 +157,8 @@ public class Statistics {
 			statistic.setTitle(format.format(saving.getDate()));
 			statistic.setValue(saving.getRealAmount());
 			savingResults.add(statistic);
-		}
-
+		}		
+		
 		return savingResults;
 	}
 

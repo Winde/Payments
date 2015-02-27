@@ -18,5 +18,9 @@ public interface IncomeRepository extends CrudRepository<IncomeEntry,Long> {
 	@Query("select t from IncomeEntry t " +
 	         "where t.date between ?1 and ?2")
 	List<IncomeEntry> findByDateBetween(Date beginning, Date end);
+
+	@Query("select i from IncomeEntry i " +
+	         "where i.date > ?1")
+	List<IncomeEntry> findAfter(Date date);
 }
 

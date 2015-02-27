@@ -9,8 +9,10 @@ public enum PaymentType {
     Coffee("Coffee"),
     Internet_Phone("Internet & Phone"),
     Entertainment("Entertainment"),
-    Transportation("Transportation");
-    
+    Transportation("Transportation"),
+    DrugStore("Drugstore"),
+    ATMCheckout("ATM Checkout");
+	
     private String name;
     
     private PaymentType(String name) {
