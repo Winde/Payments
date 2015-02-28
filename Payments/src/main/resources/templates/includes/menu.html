@@ -15,8 +15,10 @@
 				<ul class="nav navbar-nav">
 					
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/payments')? 'active' : ''}" ><a href="/payments" th:href="@{/payments}">Add info</a></li>
-					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/statistics/')? 'active' : ''}"><a href="/statistics" th:href="@{/statistics/{month}(month=${#calendars.format(#dates.createNow(), 'MM-yyyy')})}">Statistics</a></li>
-					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/transactions/')? 'active' : ''}"><a  href="/transactions" th:href="@{/transactions/{month}(month=${#calendars.format(#dates.createNow(), 'MM-yyyy')})}">Transactions</a></li>
+					<!-- <li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/statistics/')? 'active' : ''}"><a href="/statistics" th:href="@{/statistics/{month}(month=${#calendars.format(#dates.createNow(), 'MM-yyyy')})}">Statistics</a></li> -->
+					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/statistics/')? 'active' : ''}"><a href="/statistics" th:href="@{/statistics/}">Statistics</a></li>
+					<!--  <li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/transactions/')? 'active' : ''}"><a  href="/transactions" th:href="@{/transactions/{month}(month=${#calendars.format(#dates.createNow(), 'MM-yyyy')})}">Transactions</a></li>-->
+					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/transactions/')? 'active' : ''}"><a  href="/transactions" th:href="@{/transactions/}">Transactions</a></li>
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/savings')? 'active' : ''}"><a  href="/savings" th:href="@{/savings}">Savings</a></li>
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/addsaving')? 'active' : ''}"><a  href="/addsaving" th:href="@{/addsaving}">Add Savings</a></li>
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/admin/')? 'active' : ''}" sec:authorize="hasRole('ROLE_ADMIN')"><a href="/admin" th:href="@{/admin}">Admin</a></li>

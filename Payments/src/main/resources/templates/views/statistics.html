@@ -12,9 +12,6 @@
 		<script type="text/javascript" th:inline="javascript"
 			th:if="${pieChart!=null and !pieChart.isEmpty()}">
 /*<![CDATA[*/
-var chart;
-var legend;
-
 var pieChart = /*[[${pieChart}]]*/;  
 
 AmCharts.ready(function () {
@@ -48,12 +45,54 @@ AmCharts.ready(function () {
 /*]]>*/
 </script>
 
+
+<script type="text/javascript" th:inline="javascript"
+			th:if="${barChart!=null and !barChart.isEmpty()}">
+/*<![CDATA[*/
+var barChart = /*[[${barChart}]]*/;  
+
+AmCharts.ready(function () {
+    // PIE CHART
+    
+    var chart = AmCharts.makeChart("chartdiv",{
+		"type"		: 		"serial",
+		"categoryField" : 		"title",
+		//"valueField" : 		"value",
+		//"outlineColor" :	"#FFFFFF",
+	    //"outlineAlpha":		0.8,
+	    //"outlineThickness" : 	2,   
+	    //"labelsEnabled" : false,
+	    //"panEventsEnabled": 	false,
+		"dataProvider"	: barChart,			
+		"numberFormatter" : {
+			"precision":2, 
+			"decimalSeparator":',', 
+			"thousandsSeparator":'.'
+		},
+		"graphs": [{
+	        //"balloonText": "[[category]]: <b>[[value]]</b>",
+	        "fillAlphas": 0.8,
+	        "lineAlpha": 0.2,
+	        "type": "column",
+	        "valueField": "value"		
+	    }],
+		//"depth3D" : 15,
+		//"angle" : 30
+	});
+    
+    //var legend = new AmCharts.AmLegend();
+    //chart.addLegend(legend);
+    
+    // WRITE
+    chart.write("barChart");
+});
+/*]]>*/
+</script>
+
+
 		<script type="text/javascript" th:inline="javascript"
 			th:if="${stackedChart!=null and !stackedChart.isEmpty()}">
 /*<![CDATA[*/
-var chart;
-var legend;
-
 var stackedChart = /*[[${stackedChart}]]*/;  
 
 AmCharts.ready(function () {
@@ -118,6 +157,164 @@ AmCharts.ready(function () {
 });
 /*]]>*/
 </script>
+
+		<script type="text/javascript" th:inline="javascript"
+			th:if="${multipleChart!=null and !multipleChart.isEmpty()}">
+/*<![CDATA[*/
+
+var multipleChart = /*[[${multipleChart}]]*/;            
+
+var chartData = [];
+var valueAxes = [];
+var graphAxes = [];
+
+generateChartData(multipleChart,chartData,valueAxes,graphAxes);
+/*
+chartData = [
+             {
+                 "date": "2014-11-20T19:44:23.077Z",
+                 "Groceries": 308.07,
+                 "Entertainment": 129.96,                 
+             },
+             {
+                 "date": "2014-12-21T19:44:23.077Z",
+                 "Groceries": 394.44,
+                 "Entertainment": 27.48,                
+             },
+             {
+                 "date": "2015-01-22T19:44:23.077Z",
+                 "Groceries": 333.67,
+                 "Entertainment": 70.21,
+             }
+];
+
+valueAxes = [{ id: "vGroceries"
+},
+             { id: "vEntertainment"
+}
+            ];            
+graphAxes = [{ valueAxis: "vGroceries", valueField: "Groceries"
+},
+             { valueAxis: "vEntertainment" , valueField: "Entertainment"
+}
+            ]; 
+*/
+
+
+console.log(JSON.stringify(chartData));
+console.log(JSON.stringify(valueAxes));
+console.log(JSON.stringify(graphAxes));
+
+AmCharts.ready(function () {
+		var chart = AmCharts.makeChart("chartdiv", {
+		    "type": "serial",
+		    "theme": "light",
+		    //"dataDateFormat": "dd-MM-yyyy",
+		    "pathToImages": "http://www.amcharts.com/lib/3/images/",
+		    "legend": {
+		        "useGraphSettings": true
+		    },
+		    "dataProvider": chartData,
+		    //"valueAxes": valueAxes,
+		    "graphs": graphAxes,
+		    "chartScrollbar": {},
+		    "chartCursor": {
+		        "cursorPosition": "mouse"
+		    },
+		    "categoryField": "amchartDate",
+		    "categoryAxis": {
+		        "parseDates": true,
+		        //"axisColor": "#DADADA",
+		        //"minorGridEnabled": true
+		    }
+	});
+		
+	chart.write("multipleChart");
+});
+
+
+
+function generateChartData(entryData,chartData,valueAxes,graphAxes) {
+    var created = [];
+    
+    for (var categoryName in entryData) {
+    	var statisticsForCategory = entryData[categoryName];
+    	
+    	if (created[categoryName] == undefined){
+    		created[categoryName] = {};    	
+    		valueAxes.push({
+    		        "id":"v"+categoryName
+    		        /*"axisColor": "#FF6600",
+    		        "axisThickness": 2,
+    		        "gridAlpha": 0,
+    		        "axisAlpha": 1,
+    		        "position": "left"*/
+    		});
+    		graphAxes.push({
+    		        "valueAxis": "v"+categoryName,
+    		        /*"lineColor": "#FF6600",
+    		        "bullet": "round",
+    		        "bulletBorderThickness": 1,
+    		        "hideBulletsCount": 30,*/
+    		        "title": categoryName,
+    		        "valueField": categoryName
+    				//"fillAlphas": 0
+    		});
+    		
+    	}
+    	
+    	for (var i=0;i<statisticsForCategory.length;i++){
+    		var existingObject = null;    	
+    		var date = statisticsForCategory[i].title;
+    		for (var j=0;j<chartData.length;j++){
+    			if (date == chartData[j].date){
+    				existingObject = chartData[j];
+    				break;
+    			}
+    		}
+    		if (existingObject!=null){
+    			var previousValue = existingObject[categoryName];
+    			if (previousValue = null || previousValue == undefined){
+    				previousValue = 0.0;
+    			}    			    		
+    			existingObject[categoryName] =  (previousValue + statisticsForCategory[i].value).toFixed(2);
+    		} else {
+    			var object = {};
+
+
+    			var dateParts = date.split("-");
+    			console.log(dateParts[1])
+    			console.log(dateParts[0]);
+    			console.log(1);
+    			
+    			var dateObject = new Date(dateParts[1],dateParts[0]-1,1);
+    			
+    			object.date = date;    			
+    			object.amchartDate = dateObject.toISOString();
+    			object[categoryName] = statisticsForCategory[i].value;
+    			
+    			chartData.push (object);
+    		}
+    	}
+    	
+    	for (var i=0;i<chartData.length;i++){
+    		var value = chartData[i];
+    		if (value[categoryName]==undefined){
+    			value[categoryName] = 0.0;
+    		}
+    	}    
+    }
+    
+    return chartData;
+}
+
+
+
+
+/*]]>*/
+</script>
+           
+
 	
 </head>
 
@@ -127,7 +324,17 @@ AmCharts.ready(function () {
 		
 		<div class="starter-template">
 			
-			<h1>Statistics</h1>
+			
+			
+			<h1>
+				<a href="/statistics" th:if="${previousMonth!=null}" th:href="@{/statistics/{month}(month=${previousMonth})}"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></a>
+				 Statistics <span th:text="${month}"></span>
+				<a href="/statistics" th:if="${nextMonth!=null}" th:href="@{/statistics/{month}(month=${nextMonth})}"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></a>
+			
+				<a style="float: right" href="/transactions" th:href="@{/transactions/{month}(month=${month})}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span></a>
+			</h1>
+			
+			
 			<!-- 
 			<ul class="nav nav-tabs" role="tablist" id="myTab">
 			  <li role="presentation" class="active"><a href="#piechartTab" role="tab" data-toggle="tab">Pie Chart</a></li>
@@ -152,8 +359,10 @@ AmCharts.ready(function () {
 			<div class="alert alert-warning" th:if="${((pieChart==null or pieChart.isEmpty()) and (stackedChart==null or stackedChart.isEmpty()))}">
 				No data available
 			</div>
-			<div id="pieChart" class="chart" style="width: 100%; height: 400px;"></div>
-			<div id="stackedChart" class="chart" style="width: 100%; height: 400px;"></div>
+			<div id="pieChart" class="chart" style="width: 100%; height: 400px;" th:if="${pieChart!=null and !pieChart.isEmpty()}"></div>
+			<div id="stackedChart" class="chart" style="width: 100%; height: 400px;" th:if="${stackedChart!=null and !stackedChart.isEmpty()}"></div>
+			<div id="barChart" class="chart" style="width: 100%; height: 400px;" th:if="${barChart!=null and !barChart.isEmpty()}"></div>
+			<div id="multipleChart" class="chart" style="width: 100%; height: 600px;" th:if="${multipleChart!=null and !multipleChart.isEmpty()}"></div>
 		</div>
 
 	</div>

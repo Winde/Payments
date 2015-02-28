@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +92,104 @@ public class Statistics {
 		//TODO check ordering
 		return result.values();
 	}
+	
+	public static Collection<Statistic> getValuesPerMonth(Collection<Payment> transactions) {
+
+		 Comparator<String> dateComparator = new Comparator<String>() {
+		        @Override public int compare(String s1, String s2) {
+		        	SimpleDateFormat formatDate = new SimpleDateFormat("MM-yyyy");
+		        	Date date1 = null;
+		        	Date date2 = null;
+		        	try {
+		        		date1 = formatDate.parse(s1);
+		        		date2 = formatDate.parse(s2);
+		        	}catch (Exception ex){}
+		        	if (s1!=null && s2!=null){
+		        		return date1.compareTo(date2);
+		        	} else {
+		        		return 1;
+		        	}
+		        }           
+		 };
+		 
+		 SortedMap<String,Statistic> result = new TreeMap<>(dateComparator);
+		
+		SimpleDateFormat formatDate = new SimpleDateFormat("MM-yyyy");
+
+		for (Payment transaction: transactions) {
+
+			String key = null;	
+			
+			Statistic statistic = result.get(formatDate.format(transaction.getDate()));
+
+			if (statistic !=null){
+				statistic.setValue(statistic.getValue() + transaction.getRealAmount());
+			} else {
+				statistic = new Statistic();
+				statistic.setTitle(formatDate.format(transaction.getDate()));
+				statistic.setValue(transaction.getRealAmount());
+				result.put(formatDate.format(transaction.getDate()), statistic);
+			}
+			
+		}
+		//TODO check ordering
+		return result.values();
+	}
+	
+	public static Map<String,Collection<Statistic>> getValuesPerTypePerMonth(Collection<Payment> transactions) {
+
+		 Comparator<String> dateComparator = new Comparator<String>() {
+		        @Override public int compare(String s1, String s2) {
+		        	SimpleDateFormat formatDate = new SimpleDateFormat("MM-yyyy");
+		        	Date date1 = null;
+		        	Date date2 = null;
+		        	try {
+		        		date1 = formatDate.parse(s1);
+		        		date2 = formatDate.parse(s2);
+		        	}catch (Exception ex){}
+		        	if (s1!=null && s2!=null){
+		        		return date1.compareTo(date2);
+		        	} else {
+		        		return 1;
+		        	}
+		        }           
+		 };
+				
+		Map<String,SortedMap<String,Statistic>> calculations = new TreeMap<>();
+		Map<String,Collection<Statistic>> result = new HashMap<>();
+				
+		SimpleDateFormat formatDate = new SimpleDateFormat("MM-yyyy");
+
+		for (Payment transaction: transactions) {
+
+			String key = null;	
+			
+			SortedMap<String, Statistic> statisticSet = calculations.get(transaction.getType().getName());
+			if (statisticSet==null){
+				statisticSet = new TreeMap<>();
+				calculations.put(transaction.getType().getName(), statisticSet);
+			}
+			
+			Statistic statistic = statisticSet.get(formatDate.format(transaction.getDate()));
+
+			if (statistic !=null){
+				statistic.setValue(statistic.getValue() + transaction.getRealAmount());
+			} else {
+				statistic = new Statistic();
+				statistic.setTitle(formatDate.format(transaction.getDate()));
+				statistic.setValue(transaction.getRealAmount());
+				statisticSet.put(formatDate.format(transaction.getDate()), statistic);
+			}
+			
+		}
+		
+		for (String key : calculations.keySet()){
+			result.put(key, calculations.get(key).values());
+		}
+		//TODO check ordering
+		return result;
+	}
+	
 
 	public static Map<String,Map<String,Double>>  getTablePayments(Collection<Payment> transactions) {
 

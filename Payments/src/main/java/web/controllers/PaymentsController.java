@@ -182,6 +182,30 @@ public class PaymentsController {
 		return "redirect:"+ referer + "#transactions";
 
 	}
+	
+	
+	@RequestMapping(value="/statistics")
+	public String statisticsPerMonth(Model model){
+		
+
+		List<Payment> transactions = null;
+				
+		transactions = payments.findAll();
+		
+				
+		Collection<Statistic> pieChart = Statistics.getPieChart(transactions);
+		Collection<Statistic> barChart = Statistics.getValuesPerMonth(transactions);		
+		Map<String, Collection<Statistic>> multipleChart = Statistics.getValuesPerTypePerMonth(transactions);		
+		
+		model.addAttribute("pieChart",pieChart);
+		//model.addAttribute("stackedChart",stackedChart);
+		model.addAttribute("barChart",barChart);
+		model.addAttribute("multipleChart",multipleChart);
+		
+		
+		return "views/statistics";
+	}
+	
  
 	@RequestMapping(value="/statistics/{month}")
 	public String statistics(@PathVariable String month, Model model){
@@ -190,6 +214,8 @@ public class PaymentsController {
 			date = getMonthFromString(month);
 		}
 
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
+		
 		List<Payment> transactions = null;
 		
 		if (date==null) {
@@ -211,7 +237,17 @@ public class PaymentsController {
 		
 		model.addAttribute("pieChart",pieChart);
 		model.addAttribute("stackedChart",stackedChart);
+		model.addAttribute("month",month);
 		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.MONTH, -1);
+		Date previousMonth = calendar.getTime();
+		calendar.add(Calendar.MONTH, 2);
+		Date nextMonth = calendar.getTime();
+		
+		model.addAttribute("previousMonth",dateFormat.format(previousMonth));
+		model.addAttribute("nextMonth",dateFormat.format(nextMonth));
 		
 		return "views/statistics";
 	}
@@ -226,15 +262,16 @@ public class PaymentsController {
 		Date date = null;
 		if (month!=null) {
 			date = getMonthFromString(month);
-		} else {
-			date = new Date(); 
-		}
+		} 
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
 
 		List<Payment> transactionsNegative = null;
 		List<IncomeEntry> transactionsPositive = null;
 		
 		if (date==null) {
 			transactionsNegative = payments.findAll();
+			transactionsPositive = incomeEntries.findAll();
 		} else {			
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);
@@ -269,6 +306,19 @@ public class PaymentsController {
 		
 		model.addAttribute("payments",transactionsNegative);
 		model.addAttribute("income",transactionsPositive);
+		
+		model.addAttribute("month",month);
+		if (date!=null) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);
+			calendar.add(Calendar.MONTH, -1);
+			Date previousMonth = calendar.getTime();
+			calendar.add(Calendar.MONTH, 2);
+			Date nextMonth = calendar.getTime();
+			
+			model.addAttribute("previousMonth",dateFormat.format(previousMonth));
+			model.addAttribute("nextMonth",dateFormat.format(nextMonth));
+		}
 		
 		return "views/transactions";
 	}
