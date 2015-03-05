@@ -247,7 +247,7 @@ public class Statistics {
 
 	}
 
-	public static Collection<Statistic> getSavingChart(Collection<Saving> savings, Collection<Payment> payment){
+	public static Collection<Statistic> getSavingChart(Collection<Saving> savings, Collection<Payment> payments){
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
 		List<Statistic> savingResults = new ArrayList<>();
@@ -260,6 +260,49 @@ public class Statistics {
 		}		
 		
 		return savingResults;
+	}
+	
+	public static Collection<Statistic> getBalanceDeviationt(Collection<Saving> savings, Collection<Payment> payments, Collection<IncomeEntry> incomeEntries ){
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		
+		List<Statistic> balanceDeviations = new ArrayList<>();
+
+		Saving initialSaving = null;
+		
+		for (Saving saving: savings) {
+			if (initialSaving == null && saving.getDate()!=null){
+				initialSaving = saving;
+			} else if (saving.getDate()!=null){
+				if (saving.getDate().before(initialSaving.getDate())){
+					initialSaving = saving;
+				}
+			}			
+		}
+		
+		if (initialSaving ==null) {
+			return balanceDeviations;
+		}
+		
+		for (Saving saving: savings) {
+			Statistic statistic = new Statistic();
+			statistic.setTitle(format.format(saving.getDate()));
+			Long calculatedAmount = initialSaving.getAmount();
+			for (Payment payment : payments) {
+				if (payment.getDate().before(saving.getDate()) && payment.getDate().after(initialSaving.getDate())) {
+					calculatedAmount = calculatedAmount - payment.getAmount(); 
+				}
+			}
+			
+			for (IncomeEntry incomeEntry: incomeEntries) {
+				if (incomeEntry.getDate().before(saving.getDate()) && incomeEntry.getDate().after(initialSaving.getDate())) {
+					calculatedAmount = calculatedAmount + incomeEntry.getAmount(); 
+				}
+			}
+			statistic.setValue(new Double(calculatedAmount / 100));
+			balanceDeviations.add(statistic); 
+		}
+		
+		return balanceDeviations;
 	}
 
 }

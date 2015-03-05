@@ -1,16 +1,19 @@
 package web.forms;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import model.dataobjects.PaymentType;
 
 public class PaymentForm {
-	
-	@NotNull
+		
 	private PaymentType type;
 	
 	@NotNull
@@ -21,6 +24,8 @@ public class PaymentForm {
 		
 	private Boolean income = Boolean.FALSE; 
 	
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date date = null;
 	
 	
 	
@@ -56,12 +61,36 @@ public class PaymentForm {
 		this.income = income;
 	}
 
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {	
+		Calendar input = Calendar.getInstance();        
+		input.setTime(date);
+        Calendar today = Calendar.getInstance();        
+        if (isSameDay(input, today)){
+        	this.date = new Date();
+        } else {
+        	this.date = date;
+        }
+	}
 
 	public void clear() {
 		this.type = null;
 		this.amount = null; 
+		this.comments = null;
+		this.date = new Date();
 	}
 	
+    private boolean isSameDay(Calendar cal1, Calendar cal2) {
+        if (cal1 == null || cal2 == null) {
+            return false;
+        }
+        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+    }
 	
 	
 }

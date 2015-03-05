@@ -9,17 +9,159 @@
 		<script src="/resources/amcharts/serial.js" th:src="@{/resources/amcharts/serial.js}"
 			type="text/javascript"></script>
 
+<script type="text/javascript" th:inline="javascript"
+			th:if="${savings!=null and !savings.isEmpty()}">
+/*<![CDATA[*/			
+
+var savingChart = /*[[${savings}]]*/;  
+var mixedSaving = false;
+/*]]>*/           
+</script>
+
+<script type="text/javascript" th:inline="javascript"
+			th:if="${savings!=null and !savings.isEmpty() and shouldHave!=null and !shouldHave.isEmpty()}">
+/*<![CDATA[*/				
+	mixedSaving = true; 		
+	var shouldHaves = /*[[${shouldHave}]]*/;  		
+	var mixedSavingAndShould = [];
+	for (var i=0;i<savingChart.length;i++) {
+		for (var j=0;j<shouldHaves.length;j++){			
+			var saving = savingChart[i];
+			var shouldHave = shouldHaves[j];
+			if (saving.title!=null && saving.title!=undefined && saving.title == shouldHave.title){
+				var object = {};			
+				object.saving = saving.value;
+				object.shouldHave = shouldHave.value;
+				object.title = saving.title;
+				mixedSavingAndShould.push(object);
+				break;
+			}
+		}
+	}
+	
+	savingChart = mixedSavingAndShould;
+	
+	console.log(JSON.stringify(savingChart));
+/*]]>*/
+</script>			
+			
 		<script type="text/javascript" th:inline="javascript"
 			th:if="${savings!=null and !savings.isEmpty()}">
 /*<![CDATA[*/
 var chart;
 var legend;
 
-var stackedChart = /*[[${savings}]]*/;  
+AmCharts.ready(function () {
+    var chart = new AmCharts.AmSerialChart();
+    chart.dataProvider = savingChart;
+    chart.panEventsEnabled = false;
+    chart.pathToImages = "/resources/amcharts/images/";
+    chart.categoryField = "title";
+    chart.dataDateFormat = "DD/MM/YYYY";
+
+    
+    
+    // AXES
+    // category
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = true; // as our data is date-based, we set parseDates to true
+    categoryAxis.minPeriod = "DD"; // our data is daily, so we set minPeriod to DD
+    categoryAxis.gridAlpha = 0;
+    categoryAxis.tickLength = 0;
+    categoryAxis.axisAlpha = 0;
+
+  	if (mixedSaving) {
+  		var valueAxis1 = new AmCharts.ValueAxis();
+  		valueAxis1.id= "saving";
+	    valueAxis1.dashLength = 4;
+	    valueAxis1.axisAlpha = 0;
+	    valueAxis1.unit = "\u20AC"; 
+	    valueAxis1.unitPosition = "right";
+	    
+	    chart.addValueAxis(valueAxis1);
+	    
+	    var valueAxis2 = new AmCharts.ValueAxis();
+	    valueAxis2.id= "shouldHave";
+	    valueAxis2.dashLength = 4;
+	    valueAxis2.axisAlpha = 0;
+	    valueAxis2.unit = "\u20AC"; 
+	    valueAxis2.unitPosition = "right";
+	    
+	    chart.addValueAxis(valueAxis2);
+  	} else {
+    // value
+	    var valueAxis = new AmCharts.ValueAxis();
+	    valueAxis.dashLength = 4;
+	    valueAxis.axisAlpha = 0;
+	    valueAxis.unit = "\u20AC"; 
+	    valueAxis.unitPosition = "right";
+	    
+	    chart.addValueAxis(valueAxis);
+  	}
+
+    // FROM GRAPH
+    var fromGraph = new AmCharts.AmGraph();
+    fromGraph.type = "line";
+    fromGraph.valueField = "fromValue";
+    fromGraph.lineAlpha = 0;
+    fromGraph.showBalloon = false;
+    chart.addGraph(fromGraph);
+
+    // TO GRAPH
+    var toGraph = new AmCharts.AmGraph();
+    toGraph.type = "line";
+    toGraph.valueField = "toValue";
+    toGraph.lineAlpha = 0;
+    toGraph.fillAlphas = 0.2;
+    toGraph.fillToGraph = fromGraph;
+    toGraph.showBalloon = false;
+    chart.addGraph(toGraph);
+
+	if (mixedSaving){
+		var graph1 = new AmCharts.AmGraph();
+	    graph1.type = "line";
+	    graph1.valueField = "saving";
+	    graph1.lineColor = "#000000";
+	    graph1.balloonFunction = function(graphDataItem, graph) { var value = graphDataItem.values.value; return "Saving: " + prettyAmount(value) + "&euro;";};
+	    chart.addGraph(graph1);
+	    
+	    var graph2 = new AmCharts.AmGraph();
+	    graph2.type = "line";
+	    graph2.valueField = "shouldHave";
+	    graph2.lineColor = "#ff0000";
+	    graph2.balloonFunction = function(graphDataItem, graph) { var value = graphDataItem.values.value;  return "Logged: " + prettyAmount(value) + "&euro;";};
+	    chart.addGraph(graph2);
+	} else {
+    // GRAPH
+	    var graph = new AmCharts.AmGraph();
+	    graph.type = "line";
+	    graph.valueField = "value";
+	    graph.lineColor = "#000000";
+	    chart.addGraph(graph);
+	}
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chart.addChartCursor(chartCursor);
+
+    chart.creditsPosition = "top-right";
+
+    // WRITE
+    chart.write("savingChart");
+});
+/*]]>*/
+</script>
+<!-- 
+		<script type="text/javascript" th:inline="javascript"
+			th:if="${shouldHave!=null and !shouldHave.isEmpty()}">
+/*<![CDATA[*/
+var chart;
+var legend;
+
+var shouldHaveChart = /*[[${shouldHave}]]*/;  
 
 AmCharts.ready(function () {
     var chart = new AmCharts.AmSerialChart();
-    chart.dataProvider = stackedChart;
+    chart.dataProvider = shouldHaveChart;
     chart.panEventsEnabled = false;
     chart.pathToImages = "/resources/amcharts/images/";
     chart.categoryField = "title";
@@ -79,7 +221,85 @@ AmCharts.ready(function () {
     chart.creditsPosition = "top-right";
 
     // WRITE
-    chart.write("stackedChart");
+    chart.write("shouldHaveChart");
+});
+/*]]>*/
+</script>
+ -->
+
+		<script type="text/javascript" th:inline="javascript"
+			th:if="${deviations!=null and !deviations.isEmpty()}">
+/*<![CDATA[*/
+var chart;
+var legend;
+
+var deviationChart = /*[[${deviations}]]*/;  
+
+AmCharts.ready(function () {
+    var chart = new AmCharts.AmSerialChart();
+    chart.dataProvider = deviationChart;
+    chart.panEventsEnabled = false;
+    chart.pathToImages = "/resources/amcharts/images/";
+    chart.categoryField = "title";
+    chart.dataDateFormat = "DD/MM/YYYY";
+    
+
+    
+    
+    // AXES
+    // category
+    var categoryAxis = chart.categoryAxis;
+    categoryAxis.parseDates = true; // as our data is date-based, we set parseDates to true
+    categoryAxis.minPeriod = "DD"; // our data is daily, so we set minPeriod to DD
+    categoryAxis.gridAlpha = 0;
+    categoryAxis.tickLength = 0;
+    categoryAxis.axisAlpha = 0;
+
+    // value
+    var valueAxis = new AmCharts.ValueAxis();
+    valueAxis.dashLength = 4;
+    valueAxis.axisAlpha = 0;
+    valueAxis.unit = "\u20AC"; 
+    valueAxis.unitPosition = "right";
+    
+    chart.addValueAxis(valueAxis);
+
+
+    // FROM GRAPH
+    var fromGraph = new AmCharts.AmGraph();
+    fromGraph.type = "line";
+    fromGraph.valueField = "fromValue";
+    fromGraph.lineAlpha = 0;
+    fromGraph.showBalloon = false;
+    chart.addGraph(fromGraph);
+
+    // TO GRAPH
+    var toGraph = new AmCharts.AmGraph();
+    toGraph.type = "line";
+    toGraph.valueField = "toValue";
+    toGraph.lineAlpha = 0;
+    toGraph.fillAlphas = 0.2;
+    toGraph.fillToGraph = fromGraph;
+    toGraph.showBalloon = false;
+    chart.addGraph(toGraph);
+
+
+    // GRAPH
+    var graph = new AmCharts.AmGraph();
+    graph.type = "line";
+    graph.valueField = "value";
+    graph.lineColor = "#000000";
+    graph.balloonFunction = function(graphDataItem, graph) { var value = graphDataItem.values.value; return prettyAmount(value) + "&euro;";};
+    chart.addGraph(graph);
+
+    // CURSOR
+    var chartCursor = new AmCharts.ChartCursor();
+    chart.addChartCursor(chartCursor);
+
+    chart.creditsPosition = "top-right";
+
+    // WRITE
+    chart.write("deviationChart");
 });
 /*]]>*/
 </script>
@@ -120,7 +340,15 @@ AmCharts.ready(function () {
 				</table>
 				-->
 			</div>
-			<div id="stackedChart" class="chart" style="width: 100%; height: 400px;"></div>
+			<div id="savingChart" class="chart" style="width: 100%; height: 400px;"></div>
+			<!-- 
+			<h1>Should Have</h1>
+			
+			<div id="shouldHaveChart" class="chart" style="width: 100%; height: 400px;"></div>
+			 -->
+			<h1>Deviations</h1>
+			
+			<div id="deviationChart" class="chart" style="width: 100%; height: 400px;"></div>
 		</div>
 
 	</div>

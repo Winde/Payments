@@ -1,6 +1,7 @@
 package main;
 
 import java.util.Arrays;
+import java.util.TimeZone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -25,6 +26,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 public class Application {
     
     public static void main(String[] args) {
+    	
+    	TimeZone.setDefault(TimeZone.getTimeZone("CET"));
+    	
         ApplicationContext ctx = SpringApplication.run(Application.class, args);
         
         System.out.println("Let's inspect the beans provided by Spring Boot:");

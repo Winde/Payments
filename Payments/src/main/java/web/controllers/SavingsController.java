@@ -1,6 +1,7 @@
 package web.controllers;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -76,8 +77,12 @@ public class SavingsController {
     public String savings(Model model) {	
 		
 		List<Saving> savingList = savings.findAll();
+		List<Payment> paymentList = payments.findAll();
+		Collection<IncomeEntry> incomeEntriesList = incomeEntries.findAll();
 		
-		Collection<Statistic> savingResults = Statistics.getSavingChart(savingList, null);
+		Collection<Statistic> savingResults = Statistics.getSavingChart(savingList, null);		
+		Collection<Statistic> shouldHaveBeens = Statistics.getBalanceDeviationt(savingList, paymentList,incomeEntriesList);
+		
 		
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		
@@ -87,6 +92,8 @@ public class SavingsController {
 			if (!format.format(saving.getDate()).equals(format.format(new Date()))){
 				List<IncomeEntry> incomesAfter = incomeEntries.findAfter(saving.getDate());
 				
+				
+				//TODO optimize this so we don't use DB to findAfter but the array already obtained
 				List<Payment> paymentsAfter = payments.findAfter(saving.getDate());
 				
 				Double savingsToday = saving.getRealAmount();
@@ -105,6 +112,22 @@ public class SavingsController {
 				savingResults.add(todayStatistic);
 			}
 		}
+		
+		Collection<Statistic> deviations = new ArrayList<Statistic>();
+		for (Statistic shouldHave : shouldHaveBeens) {
+			for (Statistic savingResult : savingResults) {
+				if (shouldHave.getTitle()!=null && savingResult.getTitle()!=null && shouldHave.getTitle().equals( savingResult.getTitle())){
+					Statistic statistic = new Statistic();
+					statistic.setTitle(shouldHave.getTitle());
+					statistic.setValue(savingResult.getValue()-shouldHave.getValue());
+					deviations.add(statistic);
+				}				
+			}						
+		}
+		
+				
+		model.addAttribute("shouldHave", shouldHaveBeens);
+		model.addAttribute("deviations", deviations);
 		model.addAttribute("savings",savingResults);
 		
         return "views/savings";

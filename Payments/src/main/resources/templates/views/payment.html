@@ -48,6 +48,16 @@
 						</div>					
 					</div>
 					<p class="red" th:if="${#fields.hasErrors('comments')}" th:errors="*{comments}"></p>	
+					
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Date</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="date" name="date"  th:value="*{date} ? *{#dates.format(date, 'yyyy-MM-dd')}"  class="form-control" />							
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" ></p>
+					
+					
 					<div class="form-group">
 						<button class="btn" type="submit">Submit</button>
 					</div>
@@ -64,7 +74,16 @@
 							<span class="input-group-addon">&euro;</span>
 						</div>					
 					</div>
-					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>				
+					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+					
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Date</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="date" name="date" th:value="*{date} ? *{#dates.format(date, 'yyyy-MM-dd')}"  class="form-control" />							
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+									
 					<div class="form-group">
 						<button class="btn" type="submit">Submit</button>
 					</div>
@@ -97,11 +116,13 @@
 			
 
 
-			<div class="alert alert-success" th:if="${statusCode!=null}">
+			<div class="alert alert-success" th:if="${statusCode!=null and statusCode == 'success'}">
 				Success
 			</div>
 			
-			
+			<div class="alert alert-error" th:if="${statusCode!=null and statusCode == 'error'}">
+				Error
+			</div>
 			
 		</div>
 

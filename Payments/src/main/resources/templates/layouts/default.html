@@ -33,7 +33,10 @@
     <![endif]-->
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	
+
+<script src="/resources/customJS/functions.js"
+      th:src="@{/resources/customJS/functions.js}"></script>
+
 	<object th:include="${view} :: header" th:remove="tag"></object>
 	
 </head>

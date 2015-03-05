@@ -27,10 +27,13 @@ import model.statistics.Movements;
 import model.statistics.Statistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,20 +56,28 @@ public class PaymentsController {
 	private IncomeRepository incomeEntries;
 	
 	@RequestMapping(value="/payments", method=RequestMethod.GET)
-    public String paymentGET(@ModelAttribute PaymentForm paymentForm, Model model) {	
+    public String paymentGET(@ModelAttribute PaymentForm paymentForm, Model model) {
+		paymentForm.setDate(new Date());
+		
         return "views/payment";
     }
 	
 	
 	@RequestMapping(value="/payments", method=RequestMethod.POST)
     public String paymentPOST(@Valid @ModelAttribute PaymentForm paymentForm, BindingResult result, Model model) {
-		
+		boolean error = false;
 		Long amount = null;
 		try {
 			amount = new Double(paymentForm.getAmount()*100).longValue();
 		}catch (Exception ex){}
 
 		if (result.hasErrors() || amount == null){
+			if (result!=null && result.getAllErrors()!=null && result.getAllErrors().size()>0){
+				System.out.println(result.getAllErrors().get(0).getCode());
+				System.out.println(result.getAllErrors().get(0).getDefaultMessage());
+				System.out.println(result.getAllErrors().get(0).getObjectName());
+			}
+			 error = true;
 		} else {
 		
 			
@@ -76,18 +87,28 @@ public class PaymentsController {
 			
 			if (Boolean.TRUE.equals(paymentForm.getIncome())) {			
 				IncomeEntry incomeEntry = new IncomeEntry(user,amount);
+				System.out.println(paymentForm.getDate());
+				incomeEntry.setDate(paymentForm.getDate());				
 				incomeEntries.save(incomeEntry);
 			}else {
-				Payment transaction = new Payment(paymentForm.getType(),user,amount);
-				transaction.setComments(paymentForm.getComments());
-				payments.save(transaction);
+				if (paymentForm.getType()==null){
+					error = true;
+				} else {
+					Payment transaction = new Payment(paymentForm.getType(),user,amount);
+					transaction.setComments(paymentForm.getComments());
+					transaction.setDate(paymentForm.getDate());
+					payments.save(transaction);
+				}
 			}
 			
 			paymentForm.clear();
+			
+		}
+		if (error){
+			model.addAttribute("statusCode","error");
+		} else {
 			model.addAttribute("statusCode","success");
 		}
-		
-
         return "views/payment";
     }
 	
@@ -335,5 +356,7 @@ public class PaymentsController {
 		return date;
 		
 	}
+
+
 	
 }
