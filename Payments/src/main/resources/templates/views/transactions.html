@@ -2,7 +2,7 @@
 <html lang="en">
 <head th:fragment="header">
 	<title th:fragment="title">Transactions</title>
-	<!-- DataTables CSS -->
+		<!-- DataTables CSS -->
 		<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.css" />
  
 		<!-- DataTables -->
@@ -46,7 +46,8 @@
 			        "fnDrawCallback": function (oSettings) {
 			            // Get all rows of your table
 			            var nTrs = $('#summaryTable').find('tbody tr');
-			            for (var j=0;j<nTrs.length;j++){
+			            var nCols = $('#summaryTable').find('thead th');
+			            for (var j=0;j<nCols.length;j++){
 				            var element = nTrs.index(j);
 				            var sum = 0;
 				            var elements = false;
@@ -66,7 +67,7 @@
 				            }
 				            // Insert sum at the end
 				            if (elements){
-				            	$('#summaryTable').find('tfoot td:nth-child('+(j+1)+')').text(sum.toLocaleString());
+				            	$('#summaryTable').find('tfoot td:nth-child('+(j+1)+')').text(sum.toFixed(2));
 				            }
 				            
 			            }
@@ -80,7 +81,15 @@
 				                 { type: 'date-eu', targets: 0 }
 				    ],
 				    "sDom": '<"top"i>rft<"bottom"lp><"clear">'
-				});	
+				});
+				
+				$('.editButton').click(function(){
+					var row = $(this).closest('tr');
+					var hidden = row.find('.hide')
+					var shown = row.find('.show');
+					hidden.removeClass('hide').addClass('show');
+					shown.removeClass('show').addClass('hide');
+				});
 			});
 		/*]]>*/	
 		</script>
@@ -132,13 +141,13 @@
 							<tfoot>
 					            <tr>
 					            	<td></td>					                
-					                <td th:each="statisticsEntry : ${statisticsFull}"></td>
+					                <td class="currencyTableEntry" th:each="statisticsEntry : ${statisticsFull}"></td>
 					            </tr>
 					        </tfoot>
 							<tbody>
 								<tr th:each="date : ${dates}">
 									<th scope="row" th:text="${date}"></th>
-									<td th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.value.get(date)!=null ? #numbers.formatDecimal(statisticsEntry.value.get(date),1,'POINT',2,'COMMA') : '0,00' }"></td>						 
+									<td class="currencyTableEntry" th:each="statisticsEntry : ${statisticsFull}" th:text="${statisticsEntry.value.get(date)!=null ? #numbers.formatDecimal(statisticsEntry.value.get(date),1,'POINT',2,'COMMA') : '0,00' }"></td>						 
 								</tr>
 							</tbody>
 						
@@ -155,33 +164,48 @@
 									<th>Type</th>
 									<th>Amount</th>
 									<th>Comment</th>	
-									<th>Delete</th>				
+									<th>Change</th>				
 								</tr>
 							</thead>
 							<tbody>
 								<tr th:each="payment : ${payments}">							
 									<td th:text="${#calendars.format(payment.date,'dd/MM/yyyy')}"></td>						 
-									<td><span th:text="${payment.type}"></span>
-										<form class="autoSend" th:if="${payment.type==null}" th:action="@{/typeTransaction}" >
+									<td>
+																		
+										<a class="typeText show" th:href="@{/cart/{id}(id=${payment.id})}" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries}">
+											<span th:text="${payment.type}"></span>
+											<span class="glyphicon glyphicon-ok green-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and payment.fullyExplained!=null and payment.FullyExplained}"></span>
+											<span class="glyphicon glyphicon glyphicon-pencil red-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and (payment.fullyExplained==null or not payment.FullyExplained)}"></span>											
+										</a>
+										<span class="typeText show" th:if="${payment.type != T(model.dataobjects.PaymentType).Groceries}" th:text="${payment.type}"></span>
+										
+										
+																												
+										<form class="autoSend typeSelect" th:classappend="${payment.type==null} ? show : hide" th:action="@{/typeTransaction}" >
 											<input type="hidden" name="id" th:value="${payment.id}" />
 											<select name="type">
-												<option value="">Unknown</option>
+												<option value="" th:selected="${ payment.type == null}">Unknown</option>
 												<option 
 													th:each="paymentType : ${T(model.dataobjects.PaymentType).values()}"
-													th:value="${paymentType}" th:text="${paymentType.name}"></option>
+													th:value="${paymentType}" th:text="${paymentType.name}" th:selected="${ paymentType == payment.type }"></option>
 											</select>
 										</form>									
 									</td>
-									<td th:text="${payment.realAmount}"></td>
+									<td class="currencyTableEntry" th:text="${#numbers.formatDecimal(payment.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
 									<td th:text="${payment.comments}"></td>
-									<td><a href="" th:href="@{/deleteTransaction/{id}(id=${payment.id})}">Delete</a></td>
+									<td>	
+										<span class="glyphicon glyphicon-edit editButton" style="cursor: pointer; margin-right: 6px"></span>									
+										<a href="" th:href="@{/deleteTransaction/{id}(id=${payment.id})}"><span class="glyphicon glyphicon-remove red-colored"></span></a>
+									</td>
 								</tr>
 								<tr th:each="incomeEntry : ${income}">							
 									<td th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
 									<td>Income</td>
-									<td th:text="${incomeEntry.realAmount}"></td>
+									<td class="currencyTableEntry" th:text="${#numbers.formatDecimal(incomeEntry.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
 									<td th:text="${incomeEntry.comments}"></td>
-									<td><a href="" th:href="@{/deleteIncome/{id}(id=${incomeEntry.id})}">Delete</a></td>
+									<td>										
+										<a href="" th:href="@{/deleteIncome/{id}(id=${incomeEntry.id})}"><span class="glyphicon glyphicon-remove red-colored"></span></a>										
+									</td>
 								</tr>
 							</tbody>
 						

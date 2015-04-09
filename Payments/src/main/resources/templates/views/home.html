@@ -32,7 +32,7 @@
 								th:href="@{/statistics/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"
 								th:text="${#calendars.format(month, 'MMMM yyyy')}"></a>
 							<a style="float: right; text-decoration: none; margin-left: 15px" class="glyphicon glyphicon-zoom-in" href="#"					
-								th:href="@{/transactions/{date}(date=${#calendars.format(month, 'MM-yyyy')})}"></a>	
+								th:href="@{/transactions/{date}#transactions(date=${#calendars.format(month, 'MM-yyyy')})}"></a>	
 								
 						</div>
 							

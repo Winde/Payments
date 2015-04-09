@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<User,String> {
 		
-	List<User> findAll();
-	User findOne(String name);
+	public List<User> findAll();
+	public User findOne(String name);
 }
 

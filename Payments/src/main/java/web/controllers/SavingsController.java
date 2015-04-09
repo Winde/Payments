@@ -55,7 +55,7 @@ public class SavingsController {
         
 		Long amount = null;
 		try {
-			amount = new Double(savingForm.getAmount()*100).longValue();
+			amount = Math.round(new Double(savingForm.getAmount()*100));			
 		}catch (Exception ex){}
 
 		if (result.hasErrors() || amount == null){

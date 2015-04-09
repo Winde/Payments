@@ -15,3 +15,19 @@ body {
 table.dataTable tfoot th, table.dataTable tfoot td {
 	padding: 8px 10px !important;
 }
+
+.green-colored {
+	color: #b5d884;
+}
+
+.red-colored {
+	color: #e54c16;
+}
+
+.currencyTableEntry {
+	text-align: right;	
+}
+
+.currencyTableEntry:after {
+	content: "\20AC";
+}

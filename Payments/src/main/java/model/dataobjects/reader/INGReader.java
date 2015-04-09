@@ -72,7 +72,7 @@ public class INGReader implements StatementReader{
 						}
 						
 						if (amount!=null){
-							longAmount = new Double(amount * 100).longValue();
+							longAmount = Math.round(new Double(amount*100));							
 						}
 					}
 					

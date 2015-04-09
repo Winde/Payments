@@ -2,10 +2,12 @@ package model.dataobjects;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,6 +40,13 @@ public class Payment{
 	
 	@Column(nullable=false)
 	private String currency = "EUR";
+	
+	@OneToOne(fetch=FetchType.LAZY)
+	private Cart associatedDetails;
+	
+	@Column
+	private Boolean fullyExplained;
+	
 	
 	public Payment() {}
 
@@ -104,4 +113,25 @@ public class Payment{
 		}
 		return null;
 	}
+
+	public Cart getAssociatedDetails() {
+		return associatedDetails;
+	}
+
+	public void setAssociatedDetails(Cart associatedDetails) {
+		this.associatedDetails = associatedDetails;
+	}
+
+	public Boolean getFullyExplained() {
+		return fullyExplained;
+	}
+
+	public void setFullyExplained(Boolean fullyExplained) {
+		this.fullyExplained = fullyExplained;
+	}
+
+	public String toString() {
+		return this.getDate() + "\t" + this.getRealAmount();
+	}
+	
 }

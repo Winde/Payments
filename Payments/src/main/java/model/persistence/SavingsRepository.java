@@ -14,9 +14,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SavingsRepository extends CrudRepository<Saving,Long> {
 		
-	List<Saving> findAll();
+	public List<Saving> findAll();
 	
 	@Query("select s from Saving s where s.date > ?1 order by s.date ASC)")
-	List<Saving> findFirstAfterDate(Date from);
+	public List<Saving> findFirstAfterDate(Date from);
 }
 

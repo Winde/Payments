@@ -43,7 +43,7 @@ public class EVOReader implements StatementReader{
 						amountString = amountString.replace(",", ".");
 						Double amount = Double.parseDouble(amountString);	
 						Date date = dateFormat.parse(nextLine[1]);
-						Long longAmount = new Double(amount * 100.0).longValue();
+						Long longAmount = Math.round(new Double(amount*100));						
 						String comment = nextLine[2];
 						if (amount>0) {
 							IncomeEntry incomeEntry = new IncomeEntry();

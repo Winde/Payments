@@ -55,22 +55,12 @@ public class Statistics {
 		SimpleDateFormat formatKey = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat formatTitle = new SimpleDateFormat("dd/MM/yyyy");
 
+		System.out.println(transactions);
+		
 		for (Payment transaction: transactions) {
 
 			String key = null;
-			try {				
-				for (String string: result.keySet()){
-					
-					Date date = null;
-					date = formatKey.parse(string);				
-					if (date.before(transaction.getDate())){
-						if (key==null || date.after(formatKey.parse(key))){
-							key = string;
-						}
-					}
-				}				
-			} catch (ParseException e) {}		
-			
+
 			Statistic statistic = result.get(formatKey.format(transaction.getDate()));
 
 			if (statistic !=null){
@@ -79,15 +69,24 @@ public class Statistics {
 
 				statistic = new Statistic();
 				statistic.setTitle(formatTitle.format(transaction.getDate()));
-				statistic.setValue(0.0);
-
-				if (key==null){				
-					statistic.setValue(statistic.getValue() + transaction.getRealAmount());							
-				} else {				
-					statistic.setValue(statistic.getValue() + transaction.getRealAmount()+result.get(key).getValue());
-				}
+				statistic.setValue(transaction.getRealAmount());
 			}
 			result.put(formatKey.format(transaction.getDate()), statistic);
+						
+		}
+		for (Payment transaction: transactions) {
+			for (Statistic otherStatistic : result.values()){
+				Date date = null;
+				try {
+					 date = formatTitle.parse(otherStatistic.getTitle());
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (date.after(transaction.getDate())) {
+					otherStatistic.setValue(otherStatistic.getValue()+ transaction.getRealAmount());
+				}
+			}
 		}
 		//TODO check ordering
 		return result.values();

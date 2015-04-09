@@ -21,6 +21,7 @@ import model.dataobjects.User;
 import model.dataobjects.reader.EVOReader;
 import model.dataobjects.reader.INGReader;
 import model.dataobjects.reader.StatementReader;
+import model.persistence.CartLineRepository;
 import model.persistence.IncomeRepository;
 import model.persistence.PaymentRepository;
 import model.statistics.Movements;
@@ -55,6 +56,10 @@ public class PaymentsController {
 	@Autowired
 	private IncomeRepository incomeEntries;
 	
+	@Autowired
+	private CartLineRepository cartLines;
+	
+	
 	@RequestMapping(value="/payments", method=RequestMethod.GET)
     public String paymentGET(@ModelAttribute PaymentForm paymentForm, Model model) {
 		paymentForm.setDate(new Date());
@@ -68,7 +73,7 @@ public class PaymentsController {
 		boolean error = false;
 		Long amount = null;
 		try {
-			amount = new Double(paymentForm.getAmount()*100).longValue();
+			amount = Math.round(new Double(paymentForm.getAmount()*100));			
 		}catch (Exception ex){}
 
 		if (result.hasErrors() || amount == null){
@@ -218,10 +223,13 @@ public class PaymentsController {
 		Collection<Statistic> barChart = Statistics.getValuesPerMonth(transactions);		
 		Map<String, Collection<Statistic>> multipleChart = Statistics.getValuesPerTypePerMonth(transactions);		
 		
+		List<Statistic> cartChart = cartLines.findStatistic();
+		
 		model.addAttribute("pieChart",pieChart);
 		//model.addAttribute("stackedChart",stackedChart);
 		model.addAttribute("barChart",barChart);
 		model.addAttribute("multipleChart",multipleChart);
+		model.addAttribute("cartChart",cartChart);
 		
 		
 		return "views/statistics";
@@ -239,6 +247,8 @@ public class PaymentsController {
 		
 		List<Payment> transactions = null;
 		
+		List<Statistic> cartChart = null;
+		
 		if (date==null) {
 			transactions = payments.findAll();
 		} else {			
@@ -249,6 +259,7 @@ public class PaymentsController {
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			Date to = calendar.getTime();
 			transactions = payments.findByDateBetween(from, to);
+			cartChart = cartLines.findStatistic(from,to);
 		}
 		
 		
@@ -259,6 +270,7 @@ public class PaymentsController {
 		model.addAttribute("pieChart",pieChart);
 		model.addAttribute("stackedChart",stackedChart);
 		model.addAttribute("month",month);
+		model.addAttribute("cartChart",cartChart);
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);

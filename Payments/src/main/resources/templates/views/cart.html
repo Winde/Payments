@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:fragment="header">
+	<title>Cart Management</title>
+	
+	
+	
+	<script>
+	/*<![CDATA[*/
+	           
+	$(document).ready(function(){
+		$('#cartTable').DataTable( {
+		    paging: false,	
+		    "aaSorting": [],
+		    "aoColumnDefs": [
+		    	{ 'bSortable': false, 'aTargets': [ 2 ] }
+		    ],
+		    "sDom": '<"top">t<"bottom"lp><"clear">'
+		});	
+		
+	});         
+		
+	/*]]>*/
+	</script>
+	
+	<script type="text/javascript" th:inline="javascript">
+	/*<![CDATA[*/			
+	
+	var nameValues = /*[[${nameValues}]]*/;  
+	var shops = /*[[${shops}]]*/;
+	$(document).ready(function(){
+		$('.lineName').typeahead({
+			source: nameValues
+		});	
+		$('.shop').typeahead({
+			source: shops
+		});	
+	});
+	
+	/*]]>*/           
+	</script>
+	<!-- DataTables CSS -->
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.css" />
+
+	<!-- DataTables -->
+	<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.js"></script>
+	
+
+	<link href="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
+	<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
+	
+	<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/sorting/date-eu.js" type="text/javascript"></script>
+</head>
+<body>
+
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Cart Management</h1>
+			
+			<h3>
+				<span th:if="${cart!=null}" th:text="'Total ' +${cart.realValue} + '&euro;'"></span>				
+				<span th:if="${payment!=null and cart!=null}"> / </span> 
+				<span th:if="${payment!=null}" th:text=" ${payment.realAmount} + '&euro;'"></span>
+			</h3>
+			
+			<table  class="table" id="cartTable" th:if="${cart!=null and not #sets.isEmpty(cart.lines)}">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Quantity</th>
+						<th>Price</th>
+						<th>Total</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="cartLine : ${cart.lines}">							
+						<td th:text="${cartLine.name}"></td>						 
+						<td th:text="${cartLine.quantity}"></td>
+						<td th:text="${#numbers.formatDecimal(cartLine.realAmount, 1, 'COMMA', 2, 'POINT')} + '&euro;'"></td>
+						<td th:text="${#numbers.formatDecimal(cartLine.realTotal, 1, 'COMMA', 2, 'POINT')} + '&euro;'"></td>
+						<td><a href="#" th:href="@{/deleteCartLine/{cart}/{id}(cart=${cart.id},id=${cartLine.id})}">Delete</a></td>
+					</tr>	
+				</tbody>		
+			</table>
+			
+			
+			
+		  	<form class="form-horizontal" role="form" action="#" th:action="@{/cart/{id}(id=${id})}" th:object="${cartForm}"
+				method="post">
+
+				<div class="form-group">			
+					<label class="col-sm-2 col-xs-12 control-label">Name</label>
+					
+					<div class="col-sm-10 col-xs-12 input-group">
+						<input type="text" th:field="*{name}" class="form-control lineName" />
+					</div>	
+				</div>
+				<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+				
+				
+				
+				<div class="form-group">
+					<label class="col-sm-2 col-xs-12 control-label">Amount</label>
+					<div class="col-sm-10 col-xs-12 input-group">
+						<input type="number" min="0" step="0.01" th:field="*{amount}" class="form-control" />
+						<span class="input-group-addon">&euro;</span>
+					</div>					
+				</div>
+				<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>					
+								
+				<div class="form-group">
+					<label class="col-sm-2 col-xs-12 control-label">Quantity</label>
+					<div class="col-sm-10 col-xs-12 input-group">
+						<input type="number" min="1" step="1" th:field="*{quantity}" class="form-control" />						
+					</div>					
+				</div>
+				<p class="red" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
+				
+				<div class="form-group">
+					<label class="col-sm-2 col-xs-12 control-label">Shop</label>
+					<div class="col-sm-10 col-xs-12 input-group">
+						<input type="text" th:field="*{shop}" class="form-control shop" />						
+					</div>					
+				</div>
+				<p class="red" th:if="${#fields.hasErrors('shop')}" th:errors="*{shop}"></p>
+								
+				<div class="form-group">
+					<button class="btn" type="submit">Submit</button>
+				</div>
+			</form>			 
+			
+			<div class="alert alert-error" th:if="${statusCode!=null and statusCode == 'error'}">
+				Error
+			</div>
+			
+			<div class="alert alert-success" th:if="${statusCode!=null}">
+				Success
+			</div>
+			
+		</div>
+
+	</div>
+	<!-- /.container -->
+
+</body>
+</html>
+
