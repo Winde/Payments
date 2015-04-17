@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="header">
+	<title>Home</title>
+	
+	<script>
+	/*<![CDATA[*/
+	    $(document).ready(function(){
+	    	
+	    	$('select[data-product]').change(function(){
+
+				var current = jQuery(this);
+				var product = current.attr('data-product');
+				var value = current.val();
+	
+				if (value!="" && value!=undefined && product!=undefined){
+					jQuery.ajax({
+							url: "/setCategoryMap/"+value+"/"+product,
+							success: function(data){			
+								if (data.result == "success"){
+									window.location = "/cartadmin";
+								} else {
+									alert("error");
+								}
+							},
+							error: function(){
+								alert("error");
+							}				
+					});
+				}
+				
+			});
+	    	
+	    	$('.deleteCategoryMap').click(function(){
+	    		var current = jQuery(this);
+	    		var product = current.attr('data-product');
+	    		var category = current.attr('data-category');
+	    		
+	    		if (product!=undefined && category!=undefined) {
+	    			jQuery.ajax({
+						url: "/removeCategoryMap/"+category+"/"+product,
+						success: function(data){			
+							if (data.result == "success"){
+								window.location = "/cartadmin";
+							} else {
+								alert("error");
+							}
+						},
+						error: function(){
+							alert("error");
+						}				
+				});
+	    			
+	    		}
+	    		
+	    		
+	    	});
+	    	
+	    	$('.deleteCategory').click(function(){
+	    		var current = jQuery(this);	    		
+	    		var category = current.attr('data-category');
+	    		
+	    		if (category!=undefined) {
+	    			jQuery.ajax({
+						url: "/removeCategory/"+category,
+						success: function(data){			
+							if (data.result == "success"){
+								window.location = "/cartadmin";
+							} else {
+								alert("error");
+							}
+						},
+						error: function(){
+							alert("error");
+						}				
+				});
+	    			
+	    		}
+	    		
+	    		
+	    	});
+			
+	    });      
+		
+	/*]]>*/	
+	</script>
+	<style>
+		.deleteCategoryMap,.deleteCategory {
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Categories Administration</h1>
+			
+			
+			<h2>Create Category</h2>
+			<form class="form-horizontal" role="form" action="#" th:action="@{/cartadmin}" th:object="${categoryForm}"
+					method="post">
+	
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Alias</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="text" th:field="*{alias}" class="form-control" />							
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('alias')}" th:errors="*{alias}"></p>
+									
+					<div class="form-group">
+						<button class="btn" type="submit">Submit</button>
+					</div>
+				</form>
+			
+			<div class="alert alert-success" th:if="${statusCode!=null and statusCode == 'success'}">
+				Success
+			</div>
+			
+			<div class="alert alert-error" th:if="${statusCode!=null and statusCode == 'error'}">
+				Error
+			</div>	
+			
+			<h2>Categories</h2>
+			<table class="table">
+				<tbody>
+					<tr th:each="mapping : ${mappings}">
+						<td >
+							<span th:text="${mapping.key}"></span>
+							<span th:attr="data-category=${mapping.key}" class="deleteCategory glyphicon glyphicon-remove red-colored"></span>
+						</td>
+						<td>
+							<div th:each="productName : ${mapping.value}">
+								<span th:text="${productName}"></span>
+								<span th:attr="data-product=${productName},data-category=${mapping.key}" class="deleteCategoryMap glyphicon glyphicon-remove red-colored"></span>
+							</div>						
+						</td>
+					</tr>
+				</tbody>
+			</table>			
+						
+			<h2>Non categorized product Names</h2>
+			
+			<table class="table">
+				<tbody>
+					<tr th:each="productName : ${nonCategorized}">
+						<td th:text="${productName}"></td>
+						<td>					
+							<select name="type" th:attr="data-product=${productName}">
+								<option value="">None</option>
+								<option 
+									th:each="mapping : ${mappings}"
+									th:value="${mapping.key}" th:text="${mapping.key}"></option>
+							</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>					
+
+
+
+
+		</div>
+	</div>
+</body>
+</html>

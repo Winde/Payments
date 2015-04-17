@@ -54,8 +54,7 @@ public class Statistics {
 
 		SimpleDateFormat formatKey = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat formatTitle = new SimpleDateFormat("dd/MM/yyyy");
-
-		System.out.println(transactions);
+		
 		
 		for (Payment transaction: transactions) {
 
@@ -128,6 +127,66 @@ public class Statistics {
 				statistic.setTitle(formatDate.format(transaction.getDate()));
 				statistic.setValue(transaction.getRealAmount());
 				result.put(formatDate.format(transaction.getDate()), statistic);
+			}
+			
+		}
+		//TODO check ordering
+		return result.values();
+	}
+	
+	public static Collection<Statistic> getSavedPerMonth(Collection<Payment> payments, Collection<IncomeEntry> incomeEntries) {
+
+		 Comparator<String> dateComparator = new Comparator<String>() {
+		        @Override public int compare(String s1, String s2) {
+		        	SimpleDateFormat formatDate = new SimpleDateFormat("MM-yyyy");
+		        	Date date1 = null;
+		        	Date date2 = null;
+		        	try {
+		        		date1 = formatDate.parse(s1);
+		        		date2 = formatDate.parse(s2);
+		        	}catch (Exception ex){}
+		        	if (s1!=null && s2!=null){
+		        		return date1.compareTo(date2);
+		        	} else {
+		        		return 1;
+		        	}
+		        }           
+		 };
+		 
+		 SortedMap<String,Statistic> result = new TreeMap<>(dateComparator);
+		
+		SimpleDateFormat formatDate = new SimpleDateFormat("MM-yyyy");
+
+		for (Payment transaction: payments) {
+
+			String key = null;	
+			
+			Statistic statistic = result.get(formatDate.format(transaction.getDate()));
+
+			if (statistic !=null){
+				statistic.setValue(statistic.getValue() - transaction.getRealAmount());
+			} else {
+				statistic = new Statistic();
+				statistic.setTitle(formatDate.format(transaction.getDate()));
+				statistic.setValue((-1)*transaction.getRealAmount());
+				result.put(formatDate.format(transaction.getDate()), statistic);
+			}
+			
+		}
+		
+		for (IncomeEntry incomeEntry: incomeEntries) {
+
+			String key = null;	
+			
+			Statistic statistic = result.get(formatDate.format(incomeEntry.getDate()));
+
+			if (statistic !=null){
+				statistic.setValue(statistic.getValue() + incomeEntry.getRealAmount());
+			} else {
+				statistic = new Statistic();
+				statistic.setTitle(formatDate.format(incomeEntry.getDate()));
+				statistic.setValue(incomeEntry.getRealAmount());
+				result.put(formatDate.format(incomeEntry.getDate()), statistic);
 			}
 			
 		}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:fragment="header">
+	<title th:fragment="title">Transactions</title>
+		<!-- DataTables CSS -->
+		<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.css" />
+ 
+		<!-- DataTables -->
+		<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.js"></script>
+		
+	
+		<link href="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
+		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
+		
+		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/sorting/date-eu.js" type="text/javascript"></script>
+		<script>
+		/*<![CDATA[*/
+			
+			jQuery(document).ready(function(){
+				
+				
+				
+				$('#comparisonTable').DataTable( {
+				    paging: false,
+				    "order": [[ 0, "asc" ]],
+				    columnDefs: [
+				                
+				    ],
+				    "createdRow": function ( row, data, index ) {
+				    	var minIndex =-1;
+				    	var minValue =-1;
+				    	var validValues = 0;
+				    	console.log(data);
+				    	for (var i=1;i<data.length;i++){
+				    		
+				    		if (!isNaN(data[i]) && data[i]!='' && (minValue<0 || data[i]!=minValue)){
+				    			validValues = validValues +1;
+				    		}
+				    		
+				    		if (minIndex <0 && data[i]!=null && data[i]!= '' ) {
+				    			minIndex = i;
+				    			minValue = data[i];				    			
+				    		}else if (data[i]<minValue  && data[i]!=null && data[i]!= ''){
+				    			minIndex = i;
+				    			minValue = data[i];				    			
+				    		}		
+				    		
+				    	}
+				    	if (minIndex>=0){
+				    		console.log("minValue = "+data[minIndex]);
+				    	} else {
+				    		console.log("minValue = NULL");
+				    	}
+				    	
+				    	console.log("validValues = "+ validValues);				    	
+			            if ( minIndex>0 && validValues >1) {
+			            	console.log('writing winner');
+			            	var winner = $('td', row).closest('table').find('thead tr th:nth-child('+(minIndex+1)+')').text();
+			            	data[data.length-1] = winner;
+			                $('td', row).last().text(winner);
+			            }
+			        },				    
+				    "sDom": '<"top"i>rft<"bottom"lp><"clear">'
+				});
+			});
+		/*]]>*/	
+		</script>
+
+</head>
+
+<body>
+
+	<div class="container"  th:fragment="content">
+		
+		<div class="starter-template">
+			
+			<h1>Price Comparison</h1>
+			
+			<div class="alert alert-warning" th:if="${
+			(comparison==null or comparison.isEmpty())}">
+				No data available
+			</div>
+			
+			<table class="table" id="comparisonTable" th:if="${comparison!=null and !comparison.isEmpty()}">
+				<thead>
+					<tr>
+						<th>Product</th>						
+						<th class="center" th:each="shop : ${shops}" th:text="${shop}"></th>
+						<th>Recommendations</th>					
+					</tr>
+				</thead>				
+				<tbody>
+					<tr th:each="comparisonEntry : ${comparison}">
+						<td th:text="${comparisonEntry.key}"></td>
+						<td class="center" th:classappend="${comparisonEntry.value.get(shop)!=null ? 'currencyTableEntry' : ''}" th:each="shop : ${shops}" th:text="${comparisonEntry.value.get(shop)!=null ? #numbers.formatDecimal(comparisonEntry.value.get(shop).realPrice, 1, 'COMMA', 2, 'POINT') : ''}"></td>
+						<td></td>												
+					</tr>
+				</tbody>
+			
+			</table>
+			
+
+		</div>
+
+	</div>
+	<!-- /.container -->
+
+</body>
+</html>
+

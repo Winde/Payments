@@ -1,18 +1,23 @@
 package model.dataobjects;
 
-public enum PaymentType {
-	Utilities("Utilities"),
-    Rent("Rent"),
-    Other("Other"),
-    Groceries("Groceries"),
-    Eating_Out("Eating Out"),
-    Coffee("Coffee"),
-    Internet_Phone("Internet & Phone"),
-    Entertainment("Entertainment"),
+public enum PaymentType implements Comparable<PaymentType>{
+	ATMCheckout("ATM Checkout"),
+	Coffee("Coffee"),
+	DrugStore("Drugstore"),
+	Eating_Out("Eating Out"),
+	Electricity("Electricity"),
+	Entertainment("Entertainment"),
+	Gas("Gas"),
+	Groceries("Groceries"),
+	Internet_Phone("Internet & Phone"),
+	Other("Other"),			
+    Rent("Rent"),        
     Transportation("Transportation"),
-    DrugStore("Drugstore"),
-    ATMCheckout("ATM Checkout");
-	
+    Utilities("Utilities"),
+    Water("Water");
+    
+    
+
     private String name;
     
     private PaymentType(String name) {
@@ -22,5 +27,4 @@ public enum PaymentType {
 	public String getName() {
 		return name;
 	}
-    
 }

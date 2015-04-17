@@ -10,7 +10,7 @@
 			type="text/javascript"></script>
 
 		<script type="text/javascript" th:inline="javascript"
-			th:if="${pieChart!=null and !pieChart.isEmpty()}">
+			th:if="${cartChart!=null and !cartChart.isEmpty()}">
 			/*<![CDATA[*/
 			var cartChart = /*[[${cartChart}]]*/;  
 			
@@ -39,6 +39,41 @@
 			             
 			    // WRITE
 			    chart.write("cartChart");
+			});
+			
+			/*]]>*/
+		</script>
+		
+		<script type="text/javascript" th:inline="javascript"
+			th:if="${cartChart2!=null and !cartChart2.isEmpty()}">
+			/*<![CDATA[*/
+			var cartChart2 = /*[[${cartChart2}]]*/;  
+			
+			AmCharts.ready(function () {
+			    // PIE CHART
+			    
+			    var chart = AmCharts.makeChart("chartdiv",{
+					"type"		: 		"pie",
+					"titleField" : 		"title",
+					"valueField" : 		"value",
+					"outlineColor" :	"#FFFFFF",	
+					"balloonText":		"\[\[title\]\]: \[\[percents\]\]% (\[\[value\]\] &euro;)",
+				    "outlineAlpha":		0.8,
+				    "outlineThickness" : 	2,   
+				    "labelsEnabled" : false,
+				    "panEventsEnabled": 	false,
+					"dataProvider"	: cartChart2,			
+					"numberFormatter" : {
+						"precision":2, 
+						"decimalSeparator":'.', 
+						"thousandsSeparator":','
+					},
+					"depth3D" : 15,
+					"angle" : 30
+				});
+			             
+			    // WRITE
+			    chart.write("cartChart2");
 			});
 			
 			/*]]>*/
@@ -85,6 +120,22 @@ AmCharts.ready(function () {
 /*<![CDATA[*/
 var barChart = /*[[${barChart}]]*/;  
 
+var total = 0;
+for (var i=0;i<barChart.length;i++) {
+	var entry = barChart[i];
+	total = total + entry.value;		
+}
+var average = total / barChart.length;
+
+for (var i=0;i<barChart.length;i++) {
+	var entry = barChart[i];
+	if (entry.value <average){
+		entry.color =  "#00a300";
+	} else {
+		entry.color =  "#e50000";
+	}
+}
+
 AmCharts.ready(function () {
     // BAR CHART
     
@@ -109,6 +160,7 @@ AmCharts.ready(function () {
 	        "fillAlphas": 0.8,
 	        "lineAlpha": 0.2,
 	        "type": "column",
+	        "colorField" : "color",
 	        "valueField": "value"		
 	    }],
 		//"depth3D" : 15,
@@ -118,8 +170,96 @@ AmCharts.ready(function () {
     //var legend = new AmCharts.AmLegend();
     //chart.addLegend(legend);
     
+    chart.addListener("rollOverGraphItem",function(event) {    	
+    	$('html').css('cursor','pointer');
+    });
+    
+	chart.addListener("rollOutGraphItem",function(event) {
+		$('html').css('cursor','auto');	
+    });
+    
+    chart.addListener("clickGraphItem", function(event){
+    	window.location= "/transactions/"+event.item.category+"#transactions"; 
+    });
+    
     // WRITE
     chart.write("barChart");
+    
+    
+    
+});
+/*]]>*/
+</script>
+
+<script type="text/javascript" th:inline="javascript"
+			th:if="${barChart2!=null and !barChart2.isEmpty()}">
+/*<![CDATA[*/
+var barChart2 = /*[[${barChart2}]]*/;  
+ 
+var total = 0;
+for (var i=0;i<barChart2.length;i++) {
+	var entry = barChart2[i];
+	total = total + entry.value;		
+}
+var average = total / barChart2.length;
+
+for (var i=0;i<barChart2.length;i++) {
+	var entry = barChart2[i];
+	if (entry.value >average){
+		entry.color =  "#00a300";
+	} else {
+		entry.color =  "#e50000";
+	}
+}
+
+AmCharts.ready(function () {
+    // BAR CHART
+    
+    var chart = AmCharts.makeChart("chartdiv",{
+		"type"		: 		"serial",
+		"categoryField" : 		"title",
+		//"valueField" : 		"value",
+		//"outlineColor" :	"#FFFFFF",
+	    //"outlineAlpha":		0.8,
+	    //"outlineThickness" : 	2,   
+	    //"labelsEnabled" : false,
+	    //"panEventsEnabled": 	false,	   
+		"dataProvider"	: barChart2,			
+		"numberFormatter" : {
+			"precision":2, 
+			"decimalSeparator":',', 
+			"thousandsSeparator":'.'
+		},
+		"graphs": [{
+	        //"balloonText": "[[category]]: <b>[[value]]</b>",
+	        "balloonFunction": function(graphDataItem, graph) { var value = graphDataItem.values.value; return prettyAmount(value) + "&euro;";},
+	        "fillAlphas": 0.8,
+	        "lineAlpha": 0.2,
+	        "type": "column",
+	        "colorField" : "color",
+	        "valueField": "value"		
+	    }],
+		//"depth3D" : 15,
+		//"angle" : 30
+	});
+    
+    //var legend = new AmCharts.AmLegend();
+    //chart.addLegend(legend);
+    
+    chart.addListener("rollOverGraphItem",function(event) {    	
+    	$('html').css('cursor','pointer');
+    });
+    
+	chart.addListener("rollOutGraphItem",function(event) {
+		$('html').css('cursor','auto');	
+    });
+    
+    chart.addListener("clickGraphItem", function(event){
+    	window.location= "/transactions/"+event.item.category+"#transactions"; 
+    });
+    
+    // WRITE
+    chart.write("barChart2");
 });
 /*]]>*/
 </script>
@@ -236,7 +376,6 @@ graphAxes = [{ valueAxis: "vGroceries", valueField: "Groceries"
             ]; 
 */
 
-
 AmCharts.ready(function () {
 		var chart = AmCharts.makeChart("chartdiv", {
 		    "type": "serial",
@@ -269,7 +408,14 @@ AmCharts.ready(function () {
 function generateChartData(entryData,chartData,valueAxes,graphAxes) {
     var created = [];
     
+    var categoryNames = [];
+    
     for (var categoryName in entryData) {
+    	
+    	if (categoryNames.indexOf(categoryName)<0){
+    		categoryNames.push(categoryName);
+    	}
+    	
     	var statisticsForCategory = entryData[categoryName];
     	
     	if (created[categoryName] == undefined){
@@ -322,20 +468,34 @@ function generateChartData(entryData,chartData,valueAxes,graphAxes) {
     			
     			object.date = date;    			
     			object.amchartDate = dateObject.toISOString();
-    			object[categoryName] = statisticsForCategory[i].value;
     			
-    			chartData.push (object);
+    			object[categoryName] = statisticsForCategory[i].value.toFixed(2);
+    			
+    			chartData.push (object);    			
     		}
+    	} 
+    }
+        
+    for (var i=0;i<chartData.length;i++){
+    	var data = chartData[i];
+    	for (var j=0;j<categoryNames.length;j++) {
+    		categoryName = categoryNames[j];
+    		if (data[categoryName] == undefined){
+    			data[categoryName] = "0.00";
+    		}    		
     	}
-    	
-    	for (var i=0;i<chartData.length;i++){
-    		var value = chartData[i];
-    		if (value[categoryName]==undefined){
-    			value[categoryName] = 0.0;
-    		}
-    	}    
     }
     
+	chartData.sort(function(a,b){
+		var aDate = new Date(a.amchartDate);
+		var bDate = new Date(b.amchartDate);
+		if ( aDate < bDate )
+	        return -1;
+	    if ( aDate > bDate )
+	        return 1;
+	    return 0;
+	});
+	
     return chartData;
 }
 
@@ -400,6 +560,11 @@ function generateChartData(entryData,chartData,valueAxes,graphAxes) {
 				<div id="cartChart" class="chart" style="width: 100%; height: 400px;"></div>
 			</div>
 			
+			<div th:if="${cartChart2!=null and !cartChart2.isEmpty()}">
+				<h2>Cart details by Category</h2>
+				<div id="cartChart2" class="chart" style="width: 100%; height: 400px;"></div>
+			</div>
+			
 			<div th:if="${stackedChart!=null and !stackedChart.isEmpty()}">
 				<h2>Expenses per day</h2>			
 				<div id="stackedChart" class="chart" style="width: 100%; height: 400px;" ></div>
@@ -407,6 +572,10 @@ function generateChartData(entryData,chartData,valueAxes,graphAxes) {
 			<div  th:if="${barChart!=null and !barChart.isEmpty()}">
 				<h2>Expenses per Month</h2>
 				<div id="barChart" class="chart" style="width: 100%; height: 400px;"></div>
+			</div>
+			<div  th:if="${barChart2!=null and !barChart2.isEmpty()}">
+				<h2>Saved per Month</h2>
+				<div id="barChart2" class="chart" style="width: 100%; height: 400px;"></div>
 			</div>
 			<div th:if="${multipleChart!=null and !multipleChart.isEmpty()}">
 				<h2>Expenses per Type per Month</h2>

@@ -1,6 +1,11 @@
 package web.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import web.assisting.ShopProductEstimate;
 import web.forms.CartForm;
 import configuration.thymeleaf.templating.Layout;
 
@@ -54,8 +60,33 @@ public class CartController {
 		}
 	}
 	
+	@RequestMapping(value="/cartcomparison", method=RequestMethod.GET)
+	public String cartComparison(Model model){
+		
+		List<ShopProductEstimate> priceEntries = cartLines.getComparison();
+		
+		//Product --> Shop --> Entry
+		SortedMap<String,SortedMap<String,ShopProductEstimate>> comparison = new TreeMap<>();
+		SortedSet<String> shops = new TreeSet<>();
+		
+		for (ShopProductEstimate entry : priceEntries) {
+			SortedMap<String,ShopProductEstimate> shopMap = comparison.get(entry.getProduct());
+			if (shopMap == null){
+				shopMap = new TreeMap<>();
+				comparison.put(entry.getProduct(),shopMap);
+			}
+			shops.add(entry.getShop());
+			shopMap.put(entry.getShop(),entry);
+		}
+		
+		model.addAttribute("shops",shops);
+		model.addAttribute("comparison",comparison);
+		
+		return "views/cartcomparison";
+	}
+	
 	@RequestMapping(value="/cart/{id}", method=RequestMethod.GET)
-    public String paymentGET(@ModelAttribute CartForm cartForm,@PathVariable Long id, Model model) {
+    public String cartGET(@ModelAttribute CartForm cartForm,@PathVariable Long id, Model model) {
 		
 		Cart cart = carts.findOne(id);
 		Payment payment = payments.findOne(id);
@@ -85,7 +116,7 @@ public class CartController {
     }
 	
 	@RequestMapping(value="/cart/{id}", method=RequestMethod.POST)
-    public String paymentPOST(@Valid @ModelAttribute CartForm cartForm,@PathVariable Long id, Model model, BindingResult result) {
+    public String cartPOST(@Valid @ModelAttribute CartForm cartForm,@PathVariable Long id, Model model, BindingResult result) {
 		
 		Cart cart = carts.findOne(id);
 		Payment payment = payments.findOne(id);

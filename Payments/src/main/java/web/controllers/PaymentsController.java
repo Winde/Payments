@@ -88,11 +88,8 @@ public class PaymentsController {
 			
 			User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			
-			System.out.println(user.getAuthorities());
-			
 			if (Boolean.TRUE.equals(paymentForm.getIncome())) {			
-				IncomeEntry incomeEntry = new IncomeEntry(user,amount);
-				System.out.println(paymentForm.getDate());
+				IncomeEntry incomeEntry = new IncomeEntry(user,amount);				
 				incomeEntry.setDate(paymentForm.getDate());				
 				incomeEntries.save(incomeEntry);
 			}else {
@@ -215,21 +212,67 @@ public class PaymentsController {
 		
 
 		List<Payment> transactions = null;
-				
+		List<IncomeEntry> incomes = null;	
 		transactions = payments.findAll();
-		
+		incomes = incomeEntries.findAll();
 				
 		Collection<Statistic> pieChart = Statistics.getPieChart(transactions);
-		Collection<Statistic> barChart = Statistics.getValuesPerMonth(transactions);		
+		Collection<Statistic> barChart = Statistics.getValuesPerMonth(transactions);
+		Collection<Statistic> barChart2 = Statistics.getSavedPerMonth(transactions,incomes);
+		
 		Map<String, Collection<Statistic>> multipleChart = Statistics.getValuesPerTypePerMonth(transactions);		
 		
+		
+		
 		List<Statistic> cartChart = cartLines.findStatistic();
+		List<Statistic> cartChart2 = cartLines.findStatisticByCategory();
+		
+		Double totalValueAll = 0.0;
+		for (Statistic statistic : cartChart){
+			totalValueAll = totalValueAll+ statistic.getValue();
+		}
+		
+		Double totalValueCategorized = 0.0;
+		for (Statistic statistic : cartChart2){
+			totalValueCategorized = totalValueCategorized + statistic.getValue();
+		}
+		
+		Double totalValueGroceries = 0.0;
+		for (Payment transaction : transactions){
+			if (transaction.getType().equals(PaymentType.Groceries)){
+				totalValueGroceries = totalValueGroceries + transaction.getRealAmount();
+			}
+		}
+		
+		Double otherValue = totalValueAll - totalValueCategorized;
+		Statistic otherValueStatistic = new Statistic();
+		otherValueStatistic.setTitle("Other");
+		otherValueStatistic.setValue(otherValue);
+		if (otherValue>0.0){
+			cartChart2.add(otherValueStatistic);
+		}
+		
+		
+		Double nonCategorizedValue = totalValueGroceries - totalValueAll;		
+		Statistic pendingTicketValueStatistic = new Statistic();
+		pendingTicketValueStatistic.setTitle("Pending Ticket");
+		pendingTicketValueStatistic.setValue(nonCategorizedValue);
+		if (cartChart2!=null && nonCategorizedValue>0.0) {
+			//Removed due to adding too much noise
+			//cartChart2.add(pendingTicketValueStatistic);
+		}
+		if (cartChart!=null && nonCategorizedValue>0.0) {
+			//Removed due to adding too much noise
+			//cartChart.add(pendingTicketValueStatistic);
+		}
 		
 		model.addAttribute("pieChart",pieChart);
 		//model.addAttribute("stackedChart",stackedChart);
 		model.addAttribute("barChart",barChart);
+		model.addAttribute("barChart2",barChart2);
 		model.addAttribute("multipleChart",multipleChart);
 		model.addAttribute("cartChart",cartChart);
+		model.addAttribute("cartChart2",cartChart2);
 		
 		
 		return "views/statistics";
@@ -248,7 +291,7 @@ public class PaymentsController {
 		List<Payment> transactions = null;
 		
 		List<Statistic> cartChart = null;
-		
+		List<Statistic> cartChart2 = null;
 		if (date==null) {
 			transactions = payments.findAll();
 		} else {			
@@ -260,17 +303,62 @@ public class PaymentsController {
 			Date to = calendar.getTime();
 			transactions = payments.findByDateBetween(from, to);
 			cartChart = cartLines.findStatistic(from,to);
+			cartChart2 = cartLines.findStatisticByCategory(from,to);
+		}
+		
+		
+		
+		Double totalValueAll = 0.0;
+		if (cartChart!=null){
+			for (Statistic statistic : cartChart){
+				totalValueAll = totalValueAll+ statistic.getValue();
+			}
+		}
+		
+		
+		Double totalValueCategorized = 0.0;
+		if (cartChart2!=null){
+			for (Statistic statistic : cartChart2){
+				totalValueCategorized = totalValueCategorized + statistic.getValue();
+			}
+		}
+		
+		Double totalValueGroceries = 0.0;
+		for (Payment transaction : transactions){
+			if (transaction.getType().equals(PaymentType.Groceries)){
+				totalValueGroceries = totalValueGroceries + transaction.getRealAmount();
+			}
+		}
+		
+		Double otherValue = totalValueAll - totalValueCategorized;
+		Statistic otherValueStatistic = new Statistic();
+		otherValueStatistic.setTitle("Other");
+		otherValueStatistic.setValue(otherValue);
+		if (cartChart2!=null && otherValue > 0.0){
+			cartChart2.add(otherValueStatistic);
+		}
+		
+		Double nonCategorizedValue = totalValueGroceries - totalValueAll;		
+		Statistic pendingTicketValueStatistic = new Statistic();
+		pendingTicketValueStatistic.setTitle("Pending Ticket");
+		pendingTicketValueStatistic.setValue(nonCategorizedValue);
+		if (cartChart2!=null && nonCategorizedValue>0.0) {
+			cartChart2.add(pendingTicketValueStatistic);
+		}
+		
+		if (cartChart!=null && nonCategorizedValue>0.0) {
+			cartChart.add(pendingTicketValueStatistic);
 		}
 		
 		
 		Collection<Statistic> pieChart = Statistics.getPieChart(transactions);
-		Collection<Statistic> stackedChart = Statistics.getStackedValuesPerDate(transactions);		
-		
+		Collection<Statistic> stackedChart = Statistics.getStackedValuesPerDate(transactions);				
 		
 		model.addAttribute("pieChart",pieChart);
 		model.addAttribute("stackedChart",stackedChart);
 		model.addAttribute("month",month);
 		model.addAttribute("cartChart",cartChart);
+		model.addAttribute("cartChart2",cartChart2);
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
