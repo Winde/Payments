@@ -28,13 +28,10 @@ import model.statistics.Movements;
 import model.statistics.Statistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,10 +68,7 @@ public class PaymentsController {
 	@RequestMapping(value="/payments", method=RequestMethod.POST)
     public String paymentPOST(@Valid @ModelAttribute PaymentForm paymentForm, BindingResult result, Model model) {
 		boolean error = false;
-		Long amount = null;
-		try {
-			amount = Math.round(new Double(paymentForm.getAmount()*100));			
-		}catch (Exception ex){}
+		Long amount = paymentForm.getAmountLong();
 
 		if (result.hasErrors() || amount == null){
 			if (result!=null && result.getAllErrors()!=null && result.getAllErrors().size()>0){
@@ -203,6 +197,91 @@ public class PaymentsController {
 		
 		String referer = request.getHeader("Referer");
 		return "redirect:"+ referer + "#transactions";
+
+	}
+	
+	@RequestMapping(value="/impute/{id}",  method=RequestMethod.GET)
+    public String imputeGET(@PathVariable String id,Model model,@ModelAttribute PaymentForm paymentForm) {
+		
+		Long idNum = Long.parseLong(id);
+		Payment payment = payments.findOne(idNum);
+		paymentForm.setDate(new Date());
+		
+		if (payment==null || !PaymentType.ATMCheckout.equals(payment.getType())) {
+			return "redirect:/error" ;
+		} else {			
+			model.addAttribute("payment",payment);			
+		}
+				
+		 return "views/impute";
+
+	}
+	
+	@RequestMapping(value="/impute/{id}",  method=RequestMethod.POST)
+    public String imputePOST(@PathVariable String id, Model model, @Valid @ModelAttribute PaymentForm paymentForm, BindingResult result) {
+		
+		Long idNum = Long.parseLong(id);
+		Payment payment = payments.findOne(idNum);
+		
+		boolean error = false;
+		if (payment==null || !PaymentType.ATMCheckout.equals(payment.getType())) {
+			error = true;
+			return "redirect:/error" ;
+		} else {			
+			model.addAttribute("payment",payment);	
+			
+
+			Long amount = paymentForm.getAmountLong();
+			
+			if (result.hasErrors() || amount == null || amount > payment.getAmount()){
+				if (result!=null && result.getAllErrors()!=null && result.getAllErrors().size()>0){
+					System.out.println(result.getAllErrors().get(0).getCode());
+					System.out.println(result.getAllErrors().get(0).getDefaultMessage());
+					System.out.println(result.getAllErrors().get(0).getObjectName());
+				}
+				 error = true;
+				
+			} else {
+						
+				
+				User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				
+				
+				if (paymentForm.getType()==null){
+					error = true;
+				} else if (amount == payment.getAmount()){
+					Payment transaction = new Payment(paymentForm.getType(),user,amount);
+					transaction.setComments(paymentForm.getComments());
+					transaction.setDate(paymentForm.getDate());
+										
+					payments.save(transaction);					
+					payments.delete(payment);
+				} else {
+					Payment transaction = new Payment(paymentForm.getType(),user,amount);
+					transaction.setComments(paymentForm.getComments());
+					transaction.setDate(paymentForm.getDate());
+					
+					payment.setAmount(payment.getAmount()-amount);
+					
+					
+					payments.save(transaction);					
+					payments.save(payment);
+				}
+				
+				
+				paymentForm.clear();
+				
+			}
+											
+		}
+		
+		if (error) {
+			 model.addAttribute("statusCode","error");
+		} else {
+			model.addAttribute("statusCode","success");
+		}
+				
+		 return "views/impute/"+id;
 
 	}
 	

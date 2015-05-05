@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:fragment="header">
+	<title>Impute view</title>
+</head>
+<body>
+
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Impute Management</h1>
+			
+			<h3>
+				<span th:if="${payment!=null}" th:text="'Available ' +${payment.realAmount} + '&euro;'"></span>								
+			</h3>
+			
+ 			<div id="payments" th:if="${payment!=null}">
+			  	<form class="form-horizontal" role="form" action="#" th:action="@{/impute/{id}(id=${payment.id})}" th:object="${paymentForm}"
+					method="post">
+	
+					<div class="form-group">			
+						<label class="col-sm-2 col-xs-12 control-label">Type</label>
+						
+						<div class="col-sm-10 col-xs-12 input-group">
+							<select th:field="*{type}" class="form-control">
+							  	<option
+										th:each="paymentType : ${T(model.dataobjects.PaymentType).values()}"
+										th:if="${paymentType != T(model.dataobjects.PaymentType).ATMCheckout}"
+										th:value="${paymentType}" th:text="${paymentType.name}"></option>
+							</select>				
+						</div>	
+					</div>
+					<p th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Amount</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="number" min="0" step="0.01" th:field="*{amount}" class="form-control" />
+							<span class="input-group-addon">&euro;</span>
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>	
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Comments</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<textarea type="text" th:field="*{comments}" class="form-control" ></textarea>
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('comments')}" th:errors="*{comments}"></p>	
+					
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Date</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="date" th:attr="min=${#dates.format(payment.date, 'yyyy-MM-dd')}"  name="date"  th:value="*{date} ? *{#dates.format(date, 'yyyy-MM-dd')}"  class="form-control" />							
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" ></p>
+					
+					
+					<div class="form-group">
+						<button class="btn" type="submit">Submit</button>
+					</div>
+				</form>
+			  </div>
+			
+			<div class="alert alert-danger" th:if="${payment==null || (statusCode!=null and statusCode == 'error')}">
+				Error
+			</div>
+			
+			<div class="alert alert-success" th:if="${statusCode=='success'}">
+				Success
+			</div>
+			
+		</div>
+
+	</div>
+	<!-- /.container -->
+
+</body>
+</html>
+

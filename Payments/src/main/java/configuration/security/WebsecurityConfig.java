@@ -42,9 +42,10 @@ public class WebsecurityConfig extends WebSecurityConfigurerAdapter {
         .csrf().
 		 	disable()		 	            
         .sessionManagement()
-		    .maximumSessions(1)
+		    .maximumSessions(1)		    
 		    .maxSessionsPreventsLogin(false)
 		    .expiredUrl("/login?expired");
+    	
     }
 
     @Autowired

@@ -92,5 +92,12 @@ public class PaymentForm {
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
 	
+    public Long getAmountLong(){
+    	Long amount = null;
+		try {
+			amount = Math.round(new Double(this.getAmount()*100));			
+		}catch (Exception ex){}
+    	return amount;
+    }
 	
 }

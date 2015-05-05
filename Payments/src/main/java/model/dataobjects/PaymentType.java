@@ -13,6 +13,7 @@ public enum PaymentType implements Comparable<PaymentType>{
 	Other("Other"),			
     Rent("Rent"),        
     Transportation("Transportation"),
+    Trip("Trip"),
     Utilities("Utilities"),
     Water("Water");
     

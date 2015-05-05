@@ -160,24 +160,28 @@
 						<table class="table"  id="transactionsTable" th:if="${((payments!=null and !payments.isEmpty()) or (income!=null and !income.isEmpty()))}">
 							<thead>
 								<tr>
-									<th>Date</th>
-									<th>Type</th>
-									<th>Amount</th>
-									<th>Comment</th>	
-									<th>Change</th>				
+									<th class="col-md-1">Date</th>
+									<th class="col-md-2">Type</th>
+									<th class="col-md-1">Amount</th>
+									<th class="col-md-7">Comment</th>	
+									<th class="col-md-1">Change</th>				
 								</tr>
 							</thead>
 							<tbody>
 								<tr th:each="payment : ${payments}">							
-									<td th:text="${#calendars.format(payment.date,'dd/MM/yyyy')}"></td>						 
-									<td>
-																		
+									<td class="col-md-1" th:text="${#calendars.format(payment.date,'dd/MM/yyyy')}"></td>						 
+									<td class="col-md-2">
+										
+										<a class="typeText show" th:href="@{/impute/{id}(id=${payment.id})}" th:if="${(payment.type == T(model.dataobjects.PaymentType).ATMCheckout) and payment.amount>0}">
+											<span th:text="${payment.type}"></span>											
+											<span class="glyphicon glyphicon glyphicon-pencil red-colored"></span>											
+										</a>								
 										<a class="typeText show" th:href="@{/cart/{id}(id=${payment.id})}" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries}">
 											<span th:text="${payment.type}"></span>
 											<span class="glyphicon glyphicon-ok green-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and payment.fullyExplained!=null and payment.FullyExplained}"></span>
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and (payment.fullyExplained==null or not payment.FullyExplained)}"></span>											
 										</a>
-										<span class="typeText show" th:if="${payment.type != T(model.dataobjects.PaymentType).Groceries}" th:text="${payment.type}"></span>
+										<span class="typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type}"></span>
 										
 										
 																												
@@ -191,19 +195,19 @@
 											</select>
 										</form>									
 									</td>
-									<td class="currencyTableEntry" th:text="${#numbers.formatDecimal(payment.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
-									<td th:text="${payment.comments}"></td>
-									<td>	
+									<td class="currencyTableEntry col-md-1" th:text="${#numbers.formatDecimal(payment.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
+									<td class="col-md-7" th:text="${payment.comments}"></td>
+									<td class="col-md-1">	
 										<span class="glyphicon glyphicon-edit editButton" style="cursor: pointer; margin-right: 6px"></span>									
 										<a href="" th:href="@{/deleteTransaction/{id}(id=${payment.id})}"><span class="glyphicon glyphicon-remove red-colored"></span></a>
 									</td>
 								</tr>
 								<tr th:each="incomeEntry : ${income}">							
-									<td th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
-									<td>Income</td>
-									<td class="currencyTableEntry" th:text="${#numbers.formatDecimal(incomeEntry.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
-									<td th:text="${incomeEntry.comments}"></td>
-									<td>										
+									<td class="col-md-1" th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
+									<td class="col-md-2">Income</td>
+									<td class="currencyTableEntry col-md-1" th:text="${#numbers.formatDecimal(incomeEntry.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
+									<td class="col-md-7" th:text="${incomeEntry.comments}"></td>
+									<td class="col-md-1">										
 										<a href="" th:href="@{/deleteIncome/{id}(id=${incomeEntry.id})}"><span class="glyphicon glyphicon-remove red-colored"></span></a>										
 									</td>
 								</tr>
