@@ -17,11 +17,7 @@
 		/*<![CDATA[*/
 			
 			jQuery(document).ready(function(){
-				var hash = window.location.hash;
-				if(hash!=null && hash!=undefined && hash.indexOf("transactions")>=0){
-					jQuery('#myTab #tabButtonSummary, #summary').removeClass('active');
-					jQuery('#myTab #tabButtonTransactions, #transactions').addClass('active');
-				}	
+					
 				
 				$('.autoSend select').change(function(){
 					var current = jQuery(this);
@@ -74,14 +70,39 @@
 			        
 			        }
 				});	
-				$('#transactionsTable').DataTable( {
-				    paging: false,
-				    "order": [[ 0, "desc" ]],
-				    columnDefs: [
-				                 { type: 'date-eu', targets: 0 }
-				    ],
-				    "sDom": '<"top"i>rft<"bottom"lp><"clear">'
-				});
+				
+				var transactionOptions = {
+					    paging: false,
+					    "order": [[ 0, "desc" ]],
+					    columnDefs: [
+					                 { type: 'date-eu', targets: 0 },
+					                 { type: 'span', targets: 1 }
+					    ],					    
+					    "sDom": '<"top"i>rft<"bottom"lp><"clear">'
+				};
+				$.fn.dataTableExt.ofnSearch['span'] = function ( sData ) {					
+					var variable = $(sData).filter('span').add($(sData).find('span')).first().text();
+					if (variable == undefined) {
+						variable ="";
+					}
+					console.log("*"+variable+"");
+					return variable;
+				}
+				$.fn.dataTableExt.oSort['span'] = function ( x,y ) {
+					return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+				}
+				
+				var transactionsTable = $('#transactionsTable').DataTable(transactionOptions);
+				var hash = window.location.hash;
+				if(hash!=null && hash!=undefined){ //&& hash.indexOf("transactions")>=0){
+					jQuery('#myTab #tabButtonSummary, #summary').removeClass('active');
+					jQuery('#myTab #tabButtonTransactions, #transactions').addClass('active');
+					if (hash.indexOf("transactions")<0){
+						hash = hash.replace("#","");
+						transactionsTable.search(hash).draw();												
+					}
+				}
+				
 				
 				$('.editButton').click(function(){
 					var row = $(this).closest('tr');
@@ -173,15 +194,15 @@
 									<td class="col-md-2">
 										
 										<a class="typeText show" th:href="@{/impute/{id}(id=${payment.id})}" th:if="${(payment.type == T(model.dataobjects.PaymentType).ATMCheckout) and payment.amount>0}">
-											<span th:text="${payment.type}"></span>											
+											<span th:text="${payment.type.name}"></span>											
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored"></span>											
 										</a>								
 										<a class="typeText show" th:href="@{/cart/{id}(id=${payment.id})}" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries}">
-											<span th:text="${payment.type}"></span>
+											<span th:text="${payment.type.name}"></span>
 											<span class="glyphicon glyphicon-ok green-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and payment.fullyExplained!=null and payment.FullyExplained}"></span>
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and (payment.fullyExplained==null or not payment.FullyExplained)}"></span>											
 										</a>
-										<span class="typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type}"></span>
+										<span class="typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type.name}"></span>
 										
 										
 																												
@@ -204,7 +225,7 @@
 								</tr>
 								<tr th:each="incomeEntry : ${income}">							
 									<td class="col-md-1" th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
-									<td class="col-md-2">Income</td>
+									<td class="col-md-2"><span class="typeText show">Income</span></td>
 									<td class="currencyTableEntry col-md-1" th:text="${#numbers.formatDecimal(incomeEntry.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
 									<td class="col-md-7" th:text="${incomeEntry.comments}"></td>
 									<td class="col-md-1">										

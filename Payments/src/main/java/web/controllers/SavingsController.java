@@ -85,7 +85,10 @@ public class SavingsController {
 		
 		
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-		
+		Date firstDate = null;
+		Date lastDate = null;
+		Double firstValue = null;
+		Double lastValue = null;
 		if (savingList!=null && savingList.size()>0){
 			Saving saving = savingList.get(savingList.size()-1);
 			
@@ -111,6 +114,21 @@ public class SavingsController {
 				todayStatistic.setValue(savingsToday);
 				savingResults.add(todayStatistic);
 			}
+			
+		}
+		
+		for (Saving saving: savingList){			
+			if (saving.getDate()!=null){
+				Date date = saving.getDate();
+				if (firstDate == null  || date.before(firstDate)){
+					firstDate = date;
+					firstValue = saving.getRealAmount();
+				}
+				if (lastDate == null || date.after(lastDate)){
+					lastDate = date;
+					lastValue = saving.getRealAmount();
+				}								
+			}
 		}
 		
 		Collection<Statistic> deviations = new ArrayList<Statistic>();
@@ -125,7 +143,25 @@ public class SavingsController {
 			}						
 		}
 		
+		Double savingsPerMonth = null;
+		if (firstDate!=null && lastDate!=null && lastValue!=null && firstValue!=null){
+			//Calendar firstCal = Calendar.getInstance();
+			//Calendar lastCal = Calendar.getInstance();
+			//firstCal.setTime(firstDate);
+			//lastCal.setTime(lastDate);
+			int days = (int)( (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24));
+			Double totalSavings = lastValue - firstValue;			
+			if (days ==0) {
+				savingsPerMonth = null;
+			} else {
+				savingsPerMonth = (totalSavings / days)*30.0;	
+			}
+			
+			
+			
+		}
 				
+		model.addAttribute("savingsPerMonth", savingsPerMonth);
 		model.addAttribute("shouldHave", shouldHaveBeens);
 		model.addAttribute("deviations", deviations);
 		model.addAttribute("savings",savingResults);

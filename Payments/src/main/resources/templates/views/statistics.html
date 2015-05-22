@@ -9,6 +9,12 @@
 		<script src="/resources/amcharts/serial.js" th:src="@{/resources/amcharts/serial.js}"
 			type="text/javascript"></script>
 
+		<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+			var month = /*[[${month}]]*/;
+		/*]]>*/
+		</script>
+
 		<script type="text/javascript" th:inline="javascript"
 			th:if="${cartChart!=null and !cartChart.isEmpty()}">
 			/*<![CDATA[*/
@@ -107,6 +113,15 @@ AmCharts.ready(function () {
 		"depth3D" : 15,
 		"angle" : 30
 	});
+        
+    chart.addListener("clickSlice", function(event){    	
+    	var url = "/transactions";
+    	if (month!=null){
+    		url = url + "/" + month;
+    	}
+    	url = url + "#" + event.dataItem.title; 
+    	window.location = url;    	
+    });
              
     // WRITE
     chart.write("pieChart");

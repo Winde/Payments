@@ -6,3 +6,12 @@ function prettyAmount(amount){
 	}
 	
 }
+
+function parseDateDDMMYYYY(dateCandidate,separator) {
+	
+	var splitted = dateCandidate.toString().split(separator);
+	if (splitted !=null && splitted!=undefined && splitted.length == 3){
+		var date = new Date(splitted[2], splitted[1]-1, splitted[0], 0, 0, 0);		
+		return date;
+	}
+}

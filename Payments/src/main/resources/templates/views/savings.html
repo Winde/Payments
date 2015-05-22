@@ -41,7 +41,6 @@ var mixedSaving = false;
 	
 	savingChart = mixedSavingAndShould;
 	
-	console.log(JSON.stringify(savingChart));
 /*]]>*/
 </script>			
 			
@@ -59,8 +58,7 @@ AmCharts.ready(function () {
     chart.categoryField = "title";
     chart.dataDateFormat = "DD/MM/YYYY";
 
-    
-    
+        
     // AXES
     // category
     var categoryAxis = chart.categoryAxis;
@@ -122,6 +120,7 @@ AmCharts.ready(function () {
 	    graph1.type = "line";
 	    graph1.valueField = "saving";
 	    graph1.lineColor = "#000000";
+	    //graph1.type = "smoothedLine"; //Added for smooth
 	    graph1.balloonFunction = function(graphDataItem, graph) { var value = graphDataItem.values.value; return "Saving: " + prettyAmount(value) + "&euro;";};
 	    chart.addGraph(graph1);
 	    
@@ -129,6 +128,7 @@ AmCharts.ready(function () {
 	    graph2.type = "line";
 	    graph2.valueField = "shouldHave";
 	    graph2.lineColor = "#ff0000";
+	    //graph2.type = "smoothedLine"; //Added for smooth
 	    graph2.balloonFunction = function(graphDataItem, graph) { var value = graphDataItem.values.value;  return "Logged: " + prettyAmount(value) + "&euro;";};
 	    chart.addGraph(graph2);
 	} else {
@@ -144,7 +144,20 @@ AmCharts.ready(function () {
     chart.addChartCursor(chartCursor);
 
     chart.creditsPosition = "top-right";
-
+        
+    var trendLine = new AmCharts.TrendLine();
+    trendLine.initialDate = parseDateDDMMYYYY(savingChart[0].title,"/"); // 12 is hour - to start trend line in the middle of the day    
+    trendLine.finalDate = parseDateDDMMYYYY(savingChart[savingChart.length-1].title,"/");
+    trendLine.initialValue = savingChart[0].saving;
+    trendLine.finalValue = savingChart[savingChart.length-1].saving;
+    trendLine.lineColor = "#33CC33";
+    trendLine.lineAlpha = 0.5;
+    chart.addTrendLine(trendLine);    
+    
+    
+    chart.addListener("rollOverGraphItem", function(event){    	
+    	console.log(event);    	
+    });
     // WRITE
     chart.write("savingChart");
 });
@@ -315,7 +328,7 @@ AmCharts.ready(function () {
 
 			
 		<div class="starter-template">
-			<h1>Savings</h1>
+			<h1>Savings <span th:if="${savingsPerMonth!=null}" th:text="${'(' + #numbers.formatDecimal(savingsPerMonth, 1, 'COMMA', 2, 'POINT') + '&euro; per month)'}"></span></h1>
 			
 			
 			<div class="alert alert-warning" th:if="${savings==null or savings.isEmpty()}">
