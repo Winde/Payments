@@ -1,25 +1,22 @@
 package model.dataobjects.reader;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import model.dataobjects.IncomeEntry;
+import model.dataobjects.Payment;
+import model.dataobjects.User;
+import model.statistics.Movements;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-
-import model.dataobjects.IncomeEntry;
-import model.dataobjects.Payment;
-import model.dataobjects.User;
-import model.statistics.Movements;
 
 public class INGReader implements StatementReader{
 
@@ -46,14 +43,25 @@ public class INGReader implements StatementReader{
 			
 			int i=1;
 			while (rowIterator.hasNext()){
-				row = rowIterator.next();
+				row = rowIterator.next();				
 				if (i>headerLines){
+					
+					Cell cell0 =  row.getCell(0);
+					Cell cell1 = row.getCell(1);
+					Cell cell2 = row.getCell(2);
+					
+					if ((cell0 == null || cell0.getCellType() == Cell.CELL_TYPE_BLANK) &&
+							(cell1==null || cell1.getCellType() == Cell.CELL_TYPE_BLANK) &&
+									(cell2==null || cell2.getCellType() == Cell.CELL_TYPE_BLANK)){
+						break;
+					}
+							
 					Double amount = null;
 					Long longAmount = null;
 					Date date = null;
 					String comment = null;
 					
-					cell = row.getCell(2); //Amount
+					cell = cell2; //Amount
 					
 					if (cell!=null){
 						switch (cell.getCellType()){
@@ -76,26 +84,32 @@ public class INGReader implements StatementReader{
 						}
 					}
 					
-					cell = row.getCell(0); //Date
+					cell = cell0; //Date
 					if (cell!=null){
 						switch (cell.getCellType()){
-						case Cell.CELL_TYPE_NUMERIC:
-							date = cell.getDateCellValue();		
-							break;
-						case Cell.CELL_TYPE_STRING:
-							String stringValue = cell.getStringCellValue(); 
-							date = dateFormat.parse(stringValue);
-							break;
+							case Cell.CELL_TYPE_NUMERIC:
+								date = cell.getDateCellValue();		
+								break;
+							case Cell.CELL_TYPE_STRING:
+								String stringValue = cell.getStringCellValue(); 
+								date = dateFormat.parse(stringValue);
+								break;							
 						}
 					}
 					
-					cell = row.getCell(1); //Description
+					cell = cell1; //Description
 					if (cell!=null){
 						comment = cell.getStringCellValue(); 
 					}
 					
 					
-					if (date==null || amount==null){
+					if (date==null){						
+						System.out.println("Row: " + row.getRowNum());
+						System.out.println("Date is null");
+						error = true;
+					}else if (amount==null){				
+						System.out.println("Row: " + row.getRowNum());
+						System.out.println("Amount is null");
 						error = true;
 					} else {
 						if (amount>0) {

@@ -109,7 +109,7 @@ public class PaymentsController {
     }
 	
 	@RequestMapping(value="/uploadBank", method=RequestMethod.POST)
-    public String ignPOST(@RequestParam("file") MultipartFile file,@RequestParam("bank") String bank, Model model) {
+    public String uploadBank(@RequestParam("file") MultipartFile file,@RequestParam("bank") String bank, Model model) {
 
 		User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
@@ -118,7 +118,7 @@ public class PaymentsController {
 			reader = new EVOReader();
 		} else if ("ING".equals(bank)){
 			reader = new INGReader();
-		}
+		}			
 		if (reader!=null){
 			Movements movements = null;
 			try {
@@ -137,9 +137,11 @@ public class PaymentsController {
 			if (movements!=null){		
 				model.addAttribute("statusCode","success");			
 			} else {
+				System.out.println("Exception: Movements is null");
 				model.addAttribute("statusCode","error");
 			}
 		} else {
+			System.out.println("Exception: Reader is null");
 			model.addAttribute("statusCode","error");
 		}
 		return "redirect:/transactions";
@@ -318,7 +320,7 @@ public class PaymentsController {
 		
 		Double totalValueGroceries = 0.0;
 		for (Payment transaction : transactions){
-			if (transaction.getType().equals(PaymentType.Groceries)){
+			if (PaymentType.Groceries.equals(transaction.getType())){
 				totalValueGroceries = totalValueGroceries + transaction.getRealAmount();
 			}
 		}
@@ -404,7 +406,7 @@ public class PaymentsController {
 		
 		Double totalValueGroceries = 0.0;
 		for (Payment transaction : transactions){
-			if (transaction.getType().equals(PaymentType.Groceries)){
+			if (PaymentType.Groceries.equals(transaction.getType())){
 				totalValueGroceries = totalValueGroceries + transaction.getRealAmount();
 			}
 		}

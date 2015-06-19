@@ -221,22 +221,23 @@ public class Statistics {
 		for (Payment transaction: transactions) {
 
 			String key = null;	
-			
-			SortedMap<String, Statistic> statisticSet = calculations.get(transaction.getType().getName());
-			if (statisticSet==null){
-				statisticSet = new TreeMap<>();
-				calculations.put(transaction.getType().getName(), statisticSet);
-			}
-			
-			Statistic statistic = statisticSet.get(formatDate.format(transaction.getDate()));
-
-			if (statistic !=null){
-				statistic.setValue(statistic.getValue() + transaction.getRealAmount());
-			} else {
-				statistic = new Statistic();
-				statistic.setTitle(formatDate.format(transaction.getDate()));
-				statistic.setValue(transaction.getRealAmount());
-				statisticSet.put(formatDate.format(transaction.getDate()), statistic);
+			if (transaction.getType()!=null){
+				SortedMap<String, Statistic> statisticSet = calculations.get(transaction.getType().getName());
+				if (statisticSet==null){
+					statisticSet = new TreeMap<>();
+					calculations.put(transaction.getType().getName(), statisticSet);
+				}
+				
+				Statistic statistic = statisticSet.get(formatDate.format(transaction.getDate()));
+	
+				if (statistic !=null){
+					statistic.setValue(statistic.getValue() + transaction.getRealAmount());
+				} else {
+					statistic = new Statistic();
+					statistic.setTitle(formatDate.format(transaction.getDate()));
+					statistic.setValue(transaction.getRealAmount());
+					statisticSet.put(formatDate.format(transaction.getDate()), statistic);
+				}
 			}
 			
 		}

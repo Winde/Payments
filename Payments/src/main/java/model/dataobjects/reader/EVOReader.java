@@ -29,6 +29,7 @@ public class EVOReader implements StatementReader{
 		CSVReader reader = new CSVReader(inputReader,';');		
 	
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		SimpleDateFormat dateFormatClassic = new SimpleDateFormat("dd/MM/yyyy");
 		
 		String [] nextLine;
 		boolean error = false;
@@ -39,12 +40,34 @@ public class EVOReader implements StatementReader{
 					if (nextLine.length>=6) {
 						
 						String amountString = nextLine[3];
+						String comment = nextLine[2];
+						String dateString = nextLine[1];
+						
+						if ((amountString == null  || "".equals(amountString.trim())) && 
+								(comment == null  || "".equals(comment.trim())) &&
+										(dateString == null  || "".equals(dateString.trim()))
+							){
+							break;
+						}
+							
+						
 						amountString = amountString.replace(".", "");
 						amountString = amountString.replace(",", ".");
-						Double amount = Double.parseDouble(amountString);	
-						Date date = dateFormat.parse(nextLine[1]);
+						Double amount = Double.parseDouble(amountString);
+						Date date = null;
+						try {
+							date = dateFormat.parse(dateString);
+						} catch (Exception ex) {}
+						if (date==null){
+							try {
+								date = dateFormatClassic.parse(dateString);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}							
+						}
+						
 						Long longAmount = Math.round(new Double(amount*100));						
-						String comment = nextLine[2];
+						
 						if (amount>0) {
 							IncomeEntry incomeEntry = new IncomeEntry();
 							incomeEntry.setAccount(account);

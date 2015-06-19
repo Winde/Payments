@@ -194,7 +194,7 @@
 									<td class="col-md-2">
 										
 										<a class="typeText show" th:href="@{/impute/{id}(id=${payment.id})}" th:if="${(payment.type == T(model.dataobjects.PaymentType).ATMCheckout) and payment.amount>0}">
-											<span th:text="${payment.type.name}"></span>											
+											<span th:text="${payment.type!=null} ? ${payment.type.name} : 'Undefined'"></span>											
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored"></span>											
 										</a>								
 										<a class="typeText show" th:href="@{/cart/{id}(id=${payment.id})}" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries}">
@@ -202,7 +202,7 @@
 											<span class="glyphicon glyphicon-ok green-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and payment.fullyExplained!=null and payment.FullyExplained}"></span>
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and (payment.fullyExplained==null or not payment.FullyExplained)}"></span>											
 										</a>
-										<span class="typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type.name}"></span>
+										<span class="typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type!=null} ? ${payment.type.name} : ''"></span>
 										
 										
 																												

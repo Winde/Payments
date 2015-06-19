@@ -103,7 +103,7 @@
 				
 				
 				<div class="form-group">
-					<label class="col-sm-2 col-xs-12 control-label">Amount</label>
+					<label class="col-sm-2 col-xs-12 control-label">Price</label>
 					<div class="col-sm-10 col-xs-12 input-group">
 						<input type="number" min="0" step="0.01" th:field="*{amount}" class="form-control" />
 						<span class="input-group-addon">&euro;</span>
@@ -112,7 +112,7 @@
 				<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>					
 								
 				<div class="form-group">
-					<label class="col-sm-2 col-xs-12 control-label">Price</label>
+					<label class="col-sm-2 col-xs-12 control-label">Quantity</label>
 					<div class="col-sm-10 col-xs-12 input-group">
 						<input type="number" min="1" step="1" th:field="*{quantity}" class="form-control" />						
 					</div>					
