@@ -3,6 +3,7 @@ package model.dataobjects;
 public enum PaymentType implements Comparable<PaymentType>{
 	ATMCheckout("ATM Checkout"),
 	Coffee("Coffee"),
+	Clothes("Clothes"),
 	DrugStore("Drugstore"),
 	Eating_Out("Eating Out"),
 	Electricity("Electricity"),

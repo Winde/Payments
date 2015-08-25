@@ -9,10 +9,10 @@
 		<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.js"></script>
 		
 	
-		<link href="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
-		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
+		<link href="//cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
+		<script src="//cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.js" type="text/javascript"></script>
 		
-		<script src="http://cdn.datatables.net/plug-ins/9dcbecd42ad/sorting/date-eu.js" type="text/javascript"></script>
+		<script src="//cdn.datatables.net/plug-ins/9dcbecd42ad/sorting/date-eu.js" type="text/javascript"></script>
 		<script>
 		/*<![CDATA[*/
 			
@@ -29,8 +29,7 @@
 				    "createdRow": function ( row, data, index ) {
 				    	var minIndex =-1;
 				    	var minValue =-1;
-				    	var validValues = 0;
-				    	console.log(data);
+				    	var validValues = 0;				    	
 				    	for (var i=1;i<data.length;i++){
 				    		
 				    		if (!isNaN(data[i]) && data[i]!='' && (minValue<0 || data[i]!=minValue)){

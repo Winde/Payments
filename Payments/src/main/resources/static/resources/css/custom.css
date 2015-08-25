@@ -1,6 +1,8 @@
+/*
 body {
   padding-top: 50px;
 }
+*/
 .starter-template {
 }
 
@@ -34,4 +36,8 @@ table.dataTable tfoot th, table.dataTable tfoot td {
 
 .center {
 	text-align: center;	
+}
+
+.table-responsive {
+	overflow: visible;	
 }

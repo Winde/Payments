@@ -2,6 +2,26 @@
 <html lang="en">
 <head th:fragment="header">
 	<title>Add info</title>
+	
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+
+           var tags = /*[[${tags}]]*/;
+           var names = tags.map(function(tag) {
+        	    return tag['name'];
+        	});
+           
+           jQuery(document).ready(function(){
+        	   $('.tagsinput').tagsinput({
+        			  typeahead: {
+        			    source: names
+        			  }    	   
+           		});
+	
+			});
+	/*]]>*/
+</script>	
+	
 </head>
 <body>
 
@@ -10,6 +30,10 @@
 		<div class="starter-template">
 
 			<h1>Add info</h1>
+
+			<p>
+				<span th:each="tag : ${tags}" th:text="${tag.name}"></span>
+			</p>
 
 			<ul class="nav nav-tabs" role="tablist" id="myTab">
 			  <li role="presentation" th:classappend="${(paymentForm==null or !paymentForm.income) ? 'active' : ''}"><a href="#payments" aria-controls="home" role="tab" data-toggle="tab">Payments</a></li>
@@ -40,7 +64,17 @@
 							<span class="input-group-addon">&euro;</span>
 						</div>					
 					</div>
-					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>	
+					<p class="red" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+					
+					<div class="form-group">
+						<label class="col-sm-2 col-xs-12 control-label">Tags</label>
+						<div class="col-sm-10 col-xs-12 input-group">
+							<input type="text" th:field="*{tags}" class="form-control tagsinput" />
+						</div>					
+					</div>
+					<p class="red" th:if="${#fields.hasErrors('tags')}" th:errors="*{tags}"></p>
+					
+						
 					<div class="form-group">
 						<label class="col-sm-2 col-xs-12 control-label">Comments</label>
 						<div class="col-sm-10 col-xs-12 input-group">

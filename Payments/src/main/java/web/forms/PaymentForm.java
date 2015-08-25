@@ -24,11 +24,12 @@ public class PaymentForm {
 		
 	private Boolean income = Boolean.FALSE; 
 	
+	private String tags;
+	
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date date = null;
 	
-	
-	
+
 	public String getComments() {
 		return comments;
 	}
@@ -80,6 +81,7 @@ public class PaymentForm {
 		this.type = null;
 		this.amount = null; 
 		this.comments = null;
+		this.tags = null;
 		this.date = new Date();
 	}
 	
@@ -99,5 +101,14 @@ public class PaymentForm {
 		}catch (Exception ex){}
     	return amount;
     }
+
+	public String getTags() {
+		return tags;
+	}
+
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
 	
+    
 }

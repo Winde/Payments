@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="header">
+	<title>Home</title>
+</head>
+<body>
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Tags</h1>
+			
+			<div style="margin: 0 auto; text-align: center">
+				<div th:if="${tags==null || #lists.isEmpty(tags)}">No tags in use</div>
+				<div th:each="tag : ${tags}" style="width: 200px; display: inline-block; vertical-align: top; margin-right: 20px; margin-top: 15px;">		
+				
+					<div class="btn-group-vertical" role="group" style="width: 100%">			
+							<a class="btn btn-default" style="text-decoration: none; " href="#"
+								th:href="@{/tag/{name}(name=${tag.name})}"
+								><span th:text="${tag.name}"></span> (<span th:text="${tag.usage}"></span>)</a>																													
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

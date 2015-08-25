@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="header">
+	<title>Home</title>
+</head>
+<body>
+	<div class="container" th:fragment="content">
+
+		<div class="starter-template">
+
+			<h1>Tag</h1>
+			<div th:if="${tag!=null}">
+				<span th:text="${tag.name}"></span>
+				
+				<div th:each="payment : ${payments}">
+					<span th:text="${payment.id}"></span>
+				
+				</div>
+			</div>
+			
+			<div th:if="${tag==null}">
+				Error
+			</div>			
+
+		</div>
+	</div>
+</body>
+</html>

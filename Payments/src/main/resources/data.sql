@@ -1,0 +1,1 @@
+--INSERT INTO user (name,password) VALUES('Carlos','$2a$10$LQfv4fMbhitjmQzvaV4HDuyoD5eIvpckyLId9dnpUd6jbr25Qxz5G');

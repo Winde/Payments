@@ -1,6 +1,7 @@
 package model.dataobjects;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,7 +12,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 
@@ -47,6 +50,8 @@ public class Payment{
 	@Column
 	private Boolean fullyExplained;
 	
+	@ManyToMany(fetch=FetchType.LAZY)
+	List<Tag> tags;
 	
 	public Payment() {}
 
@@ -130,8 +135,30 @@ public class Payment{
 		this.fullyExplained = fullyExplained;
 	}
 
+	public List<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<Tag> tags) {
+		this.tags = tags;
+	}
+	
 	public String toString() {
 		return this.getDate() + "\t" + this.getRealAmount();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Payment) {
+			Payment oP = (Payment) o;
+			if (this.getId()!=null && oP.getId()!=null){
+				return this.getId().equals(oP.getId());
+			} else{
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 	
 }

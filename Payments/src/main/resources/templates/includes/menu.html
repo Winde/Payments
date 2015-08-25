@@ -1,5 +1,5 @@
 <div th:fragment="menu">
-	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<nav class="navbar navbar-inverse" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed"
@@ -23,6 +23,7 @@
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/cartadmin')? 'active' : ''}"><a  href="/cartadmin" th:href="@{/cartadmin/}">Shop Categories</a></li>
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/savings')? 'active' : ''}"><a  href="/savings" th:href="@{/savings}">Savings</a></li>
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/addsaving')? 'active' : ''}"><a  href="/addsaving" th:href="@{/addsaving}">Add Savings</a></li>
+					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/tag')? 'active' : ''}"><a  href="/tags" th:href="@{/tags}">Tags</a></li>
 					<li th:classappend="${(#httpServletRequest).requestURL.toString().contains('/admin/')? 'active' : ''}" sec:authorize="hasRole('ROLE_ADMIN')"><a href="/admin" th:href="@{/admin}">Admin</a></li>
 					<li><a th:href="@{/logout}" href="/logout">Logout</a></li>					
 				</ul>

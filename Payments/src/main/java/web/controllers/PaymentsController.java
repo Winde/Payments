@@ -3,6 +3,7 @@ package web.controllers;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 import model.dataobjects.IncomeEntry;
 import model.dataobjects.Payment;
 import model.dataobjects.PaymentType;
+import model.dataobjects.Tag;
 import model.dataobjects.User;
 import model.dataobjects.reader.EVOReader;
 import model.dataobjects.reader.INGReader;
@@ -24,6 +26,7 @@ import model.dataobjects.reader.StatementReader;
 import model.persistence.CartLineRepository;
 import model.persistence.IncomeRepository;
 import model.persistence.PaymentRepository;
+import model.persistence.TagRepository;
 import model.statistics.Movements;
 import model.statistics.Statistics;
 
@@ -56,11 +59,16 @@ public class PaymentsController {
 	@Autowired
 	private CartLineRepository cartLines;
 	
+	@Autowired
+	private TagRepository tagRepository;
+	
 	
 	@RequestMapping(value="/payments", method=RequestMethod.GET)
     public String paymentGET(@ModelAttribute PaymentForm paymentForm, Model model) {
 		paymentForm.setDate(new Date());
 		
+		List<Tag> tags = tagRepository.findAll();
+		model.addAttribute("tags", tags);
         return "views/payment";
     }
 	
@@ -69,7 +77,8 @@ public class PaymentsController {
     public String paymentPOST(@Valid @ModelAttribute PaymentForm paymentForm, BindingResult result, Model model) {
 		boolean error = false;
 		Long amount = paymentForm.getAmountLong();
-
+		List<Tag> tags = tagRepository.findAll();
+		
 		if (result.hasErrors() || amount == null){
 			if (result!=null && result.getAllErrors()!=null && result.getAllErrors().size()>0){
 				System.out.println(result.getAllErrors().get(0).getCode());
@@ -78,7 +87,7 @@ public class PaymentsController {
 			}
 			 error = true;
 		} else {
-		
+			List<Tag> paymentTags = Tag.createTags(paymentForm.getTags(), tags, tagRepository);
 			
 			User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			
@@ -93,6 +102,7 @@ public class PaymentsController {
 					Payment transaction = new Payment(paymentForm.getType(),user,amount);
 					transaction.setComments(paymentForm.getComments());
 					transaction.setDate(paymentForm.getDate());
+					transaction.setTags(paymentTags);
 					payments.save(transaction);
 				}
 			}
@@ -100,6 +110,10 @@ public class PaymentsController {
 			paymentForm.clear();
 			
 		}
+		
+		
+		model.addAttribute("tags", tags);
+		
 		if (error){
 			model.addAttribute("statusCode","error");
 		} else {
@@ -382,7 +396,7 @@ public class PaymentsController {
 			Date from = calendar.getTime();
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			Date to = calendar.getTime();
-			transactions = payments.findByDateBetween(from, to);
+			transactions = payments.findLazyByDateBetween(from, to);
 			cartChart = cartLines.findStatistic(from,to);
 			cartChart2 = cartLines.findStatisticByCategory(from,to);
 		}
@@ -468,8 +482,8 @@ public class PaymentsController {
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
 
-		List<Payment> transactionsNegative = null;
-		List<IncomeEntry> transactionsPositive = null;
+		Collection<Payment> transactionsNegative = null;
+		Collection<IncomeEntry> transactionsPositive = null;
 		
 		if (date==null) {
 			transactionsNegative = payments.findAll();
@@ -482,7 +496,7 @@ public class PaymentsController {
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			Date to = calendar.getTime();
 			
-			transactionsNegative = payments.findByDateBetween(from, to);
+			transactionsNegative = payments.findEagerByDateBetween(from, to);
 			transactionsPositive = incomeEntries.findByDateBetween(from, to);
 		}
 				
@@ -522,6 +536,8 @@ public class PaymentsController {
 			model.addAttribute("nextMonth",dateFormat.format(nextMonth));
 		}
 		
+		
+		model.addAttribute("tags",tagRepository.findAll());
 		return "views/transactions";
 	}
 	
