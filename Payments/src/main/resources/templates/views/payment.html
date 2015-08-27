@@ -30,11 +30,7 @@
 		<div class="starter-template">
 
 			<h1>Add info</h1>
-
-			<p>
-				<span th:each="tag : ${tags}" th:text="${tag.name}"></span>
-			</p>
-
+			
 			<ul class="nav nav-tabs" role="tablist" id="myTab">
 			  <li role="presentation" th:classappend="${(paymentForm==null or !paymentForm.income) ? 'active' : ''}"><a href="#payments" aria-controls="home" role="tab" data-toggle="tab">Payments</a></li>
 			  <li role="presentation" th:classappend="${(paymentForm!=null and paymentForm.income) ? 'active' : ''}"><a href="#income" aria-controls="profile" role="tab" data-toggle="tab">Income</a></li>		  

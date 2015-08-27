@@ -8,6 +8,7 @@ import model.dataobjects.Payment;
 import model.dataobjects.Tag;
 import model.persistence.PaymentRepository;
 import model.persistence.TagRepository;
+import model.persistence.TagRepositoryImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -101,9 +102,8 @@ public class TagsController {
 					index = tags.indexOf(tag);
 				}
 				if (index>=0){
-					tag = payment.getTags().get(index);
-					tag.setUsage(tag.getUsage()-1);
-					tagRepository.save(tag);
+					tag = payment.getTags().get(index);					
+					tagRepository.saveAndDecreaseUsage(tag);
 					payment.getTags().remove(index);
 				} else {
 					AjaxSignal signal = new AjaxSignal();
@@ -161,10 +161,7 @@ public class TagsController {
 					return signal;
 				}
 				
-				for (Tag tag: tags) {
-					tag.setUsage(tag.getUsage()+1);
-				}
-				tagRepository.save(tags);
+				tagRepository.saveAndAddUsage(tags);
 				
 				
 				List<Tag> newTags = new ArrayList<>();						

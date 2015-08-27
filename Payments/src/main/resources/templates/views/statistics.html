@@ -530,9 +530,14 @@ function generateChartData(entryData,chartData,valueAxes,graphAxes) {
 		
 		<div class="starter-template">
 			
+			<h1 th:if="${tag!=null}">Statistics for Tag: <span th:text="${tag.name}"></span>
 			
 			
-			<h1>
+				<a style="float: right" href="/tag" th:href="@{/tag/{tagName}(tagName=${tag.name})}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span></a>
+			</h1>
+			
+			
+			<h1 th:if="${tag==null}">
 				<a href="/statistics" th:if="${previousMonth!=null}" th:href="@{/statistics/{month}(month=${previousMonth})}"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></a>
 				 Statistics <span th:text="${month}"></span>
 				<a href="/statistics" th:if="${nextMonth!=null}" th:href="@{/statistics/{month}(month=${nextMonth})}"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></a>
@@ -581,7 +586,7 @@ function generateChartData(entryData,chartData,valueAxes,graphAxes) {
 			</div>
 			
 			<div th:if="${stackedChart!=null and !stackedChart.isEmpty()}">
-				<h2>Expenses per day</h2>			
+				<h2>Expenses per day (stacked)</h2>			
 				<div id="stackedChart" class="chart" style="width: 100%; height: 400px;" ></div>
 			</div>
 			<div  th:if="${barChart!=null and !barChart.isEmpty()}">

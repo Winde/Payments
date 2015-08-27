@@ -80,7 +80,7 @@ public class Tag {
 	}
 	
 	public String toString(){
-		return "[" + name + "]";		
+		return "[" + this.getName() + "(" + this.getUsage() + ") ]";		
 	}
 	
 

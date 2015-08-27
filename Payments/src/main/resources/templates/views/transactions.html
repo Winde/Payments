@@ -174,7 +174,11 @@
 		<div class="starter-template">
 			
 			
-			<h1 th:if="${tag!=null}">Tag: <span th:text="${tag.name}"></span></h1>				
+			<h1 th:if="${tag!=null}">Tag: <span th:text="${tag.name}"></span>
+			
+			
+				<a style="float: right" href="/statisticsForTag" th:href="@{/statisticsForTag/{tagName}(tagName=${tag.name})}"><span class="glyphicon glyphicon-zoom-out" aria-hidden="true"></span></a>
+			</h1>				
 			
 			
 			<h1 th:if="${tag==null}">

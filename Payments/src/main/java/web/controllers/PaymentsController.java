@@ -27,8 +27,10 @@ import model.persistence.CartLineRepository;
 import model.persistence.IncomeRepository;
 import model.persistence.PaymentRepository;
 import model.persistence.TagRepository;
+import model.persistence.TagRepositoryImpl;
 import model.statistics.Movements;
 import model.statistics.Statistics;
+import model.util.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -88,10 +90,8 @@ public class PaymentsController {
 			 error = true;
 		} else {
 			List<Tag> paymentTags = Tag.createTags(paymentForm.getTags(), tags);
-			for (Tag tag: tags) {
-				tag.setUsage(tag.getUsage()+1);
-			}
-			tagRepository.save(tags);
+			
+			tagRepository.saveAndAddUsage(tags);
 			
 			User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			
@@ -305,173 +305,7 @@ public class PaymentsController {
 
 	}
 	
-	
-	@RequestMapping(value="/statistics")
-	public String statisticsPerMonth(Model model){
-		
 
-		List<Payment> transactions = null;
-		List<IncomeEntry> incomes = null;	
-		transactions = payments.findAll();
-		incomes = incomeEntries.findAll();
-				
-		Collection<Statistic> pieChart = Statistics.getPieChart(transactions);
-		Collection<Statistic> barChart = Statistics.getValuesPerMonth(transactions);
-		Collection<Statistic> barChart2 = Statistics.getSavedPerMonth(transactions,incomes);
-		
-		Map<String, Collection<Statistic>> multipleChart = Statistics.getValuesPerTypePerMonth(transactions);		
-		
-		
-		
-		List<Statistic> cartChart = cartLines.findStatistic();
-		List<Statistic> cartChart2 = cartLines.findStatisticByCategory();
-		
-		Double totalValueAll = 0.0;
-		for (Statistic statistic : cartChart){
-			totalValueAll = totalValueAll+ statistic.getValue();
-		}
-		
-		Double totalValueCategorized = 0.0;
-		for (Statistic statistic : cartChart2){
-			totalValueCategorized = totalValueCategorized + statistic.getValue();
-		}
-		
-		Double totalValueGroceries = 0.0;
-		for (Payment transaction : transactions){
-			if (PaymentType.Groceries.equals(transaction.getType())){
-				totalValueGroceries = totalValueGroceries + transaction.getRealAmount();
-			}
-		}
-		
-		Double otherValue = totalValueAll - totalValueCategorized;
-		Statistic otherValueStatistic = new Statistic();
-		otherValueStatistic.setTitle("Other");
-		otherValueStatistic.setValue(otherValue);
-		if (otherValue>0.0){
-			cartChart2.add(otherValueStatistic);
-		}
-		
-		
-		Double nonCategorizedValue = totalValueGroceries - totalValueAll;		
-		Statistic pendingTicketValueStatistic = new Statistic();
-		pendingTicketValueStatistic.setTitle("Pending Ticket");
-		pendingTicketValueStatistic.setValue(nonCategorizedValue);
-		if (cartChart2!=null && nonCategorizedValue>0.0) {
-			//Removed due to adding too much noise
-			//cartChart2.add(pendingTicketValueStatistic);
-		}
-		if (cartChart!=null && nonCategorizedValue>0.0) {
-			//Removed due to adding too much noise
-			//cartChart.add(pendingTicketValueStatistic);
-		}
-		
-		model.addAttribute("pieChart",pieChart);
-		//model.addAttribute("stackedChart",stackedChart);
-		model.addAttribute("barChart",barChart);
-		model.addAttribute("barChart2",barChart2);
-		model.addAttribute("multipleChart",multipleChart);
-		model.addAttribute("cartChart",cartChart);
-		model.addAttribute("cartChart2",cartChart2);
-		
-		
-		return "views/statistics";
-	}
-	
- 
-	@RequestMapping(value="/statistics/{month}")
-	public String statistics(@PathVariable String month, Model model){
-		Date date = null;
-		if (month!=null) {
-			date = getMonthFromString(month);
-		}
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
-		
-		List<Payment> transactions = null;
-		
-		List<Statistic> cartChart = null;
-		List<Statistic> cartChart2 = null;
-		if (date==null) {
-			transactions = payments.findAll();
-		} else {			
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(date);
-			calendar.set(Calendar.DAY_OF_MONTH, 1);
-			Date from = calendar.getTime();
-			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-			Date to = calendar.getTime();
-			transactions = payments.findLazyByDateBetween(from, to);
-			cartChart = cartLines.findStatistic(from,to);
-			cartChart2 = cartLines.findStatisticByCategory(from,to);
-		}
-		
-		
-		
-		Double totalValueAll = 0.0;
-		if (cartChart!=null){
-			for (Statistic statistic : cartChart){
-				totalValueAll = totalValueAll+ statistic.getValue();
-			}
-		}
-		
-		
-		Double totalValueCategorized = 0.0;
-		if (cartChart2!=null){
-			for (Statistic statistic : cartChart2){
-				totalValueCategorized = totalValueCategorized + statistic.getValue();
-			}
-		}
-		
-		Double totalValueGroceries = 0.0;
-		for (Payment transaction : transactions){
-			if (PaymentType.Groceries.equals(transaction.getType())){
-				totalValueGroceries = totalValueGroceries + transaction.getRealAmount();
-			}
-		}
-		
-		Double otherValue = totalValueAll - totalValueCategorized;
-		Statistic otherValueStatistic = new Statistic();
-		otherValueStatistic.setTitle("Other");
-		otherValueStatistic.setValue(otherValue);
-		if (cartChart2!=null && otherValue > 0.0){
-			cartChart2.add(otherValueStatistic);
-		}
-		
-		Double nonCategorizedValue = totalValueGroceries - totalValueAll;		
-		Statistic pendingTicketValueStatistic = new Statistic();
-		pendingTicketValueStatistic.setTitle("Pending Ticket");
-		pendingTicketValueStatistic.setValue(nonCategorizedValue);
-		if (cartChart2!=null && nonCategorizedValue>0.0) {
-			cartChart2.add(pendingTicketValueStatistic);
-		}
-		
-		if (cartChart!=null && nonCategorizedValue>0.0) {
-			cartChart.add(pendingTicketValueStatistic);
-		}
-		
-		
-		Collection<Statistic> pieChart = Statistics.getPieChart(transactions);
-		Collection<Statistic> stackedChart = Statistics.getStackedValuesPerDate(transactions);				
-		
-		model.addAttribute("pieChart",pieChart);
-		model.addAttribute("stackedChart",stackedChart);
-		model.addAttribute("month",month);
-		model.addAttribute("cartChart",cartChart);
-		model.addAttribute("cartChart2",cartChart2);
-		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.add(Calendar.MONTH, -1);
-		Date previousMonth = calendar.getTime();
-		calendar.add(Calendar.MONTH, 2);
-		Date nextMonth = calendar.getTime();
-		
-		model.addAttribute("previousMonth",dateFormat.format(previousMonth));
-		model.addAttribute("nextMonth",dateFormat.format(nextMonth));
-		
-		return "views/statistics";
-	}
-	
 	@RequestMapping(value={"/transactions/","/transactions"})
 	public String transactions(Model model){
 		return transactions(null,model);
@@ -481,7 +315,7 @@ public class PaymentsController {
 	public String transactions(@PathVariable String month, Model model){
 		Date date = null;
 		if (month!=null) {
-			date = getMonthFromString(month);
+			date = Utils.getMonthFromString(month);
 		} 
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
@@ -490,7 +324,7 @@ public class PaymentsController {
 		Collection<IncomeEntry> transactionsPositive = null;
 		
 		if (date==null) {
-			transactionsNegative = payments.findAll();
+			transactionsNegative = payments.findAllWithTags();
 			transactionsPositive = incomeEntries.findAll();
 		} else {			
 			Calendar calendar = Calendar.getInstance();
@@ -500,7 +334,7 @@ public class PaymentsController {
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			Date to = calendar.getTime();
 			
-			transactionsNegative = payments.findEagerByDateBetween(from, to);
+			transactionsNegative = payments.findWithTagsByDateBetween(from, to);
 			transactionsPositive = incomeEntries.findByDateBetween(from, to);
 		}
 				
@@ -544,19 +378,7 @@ public class PaymentsController {
 		model.addAttribute("tags",tagRepository.findAll());
 		return "views/transactions";
 	}
-	
-	private Date getMonthFromString(String dateString){
-		SimpleDateFormat format = new SimpleDateFormat("MM-yyyy");
-		Date date = null;
-		try {
-			date = format.parse(dateString);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			
-		}
-		return date;
-		
-	}
+
 
 
 	

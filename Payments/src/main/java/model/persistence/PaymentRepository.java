@@ -17,13 +17,16 @@ public interface PaymentRepository extends CrudRepository<Payment,Long> {
 		
 	public List<Payment> findAll();
 	
+	@Query("select p from Payment p LEFT JOIN FETCH p.tags t ")
+	public Set<Payment> findAllWithTags();
+		
 	@Query("select p from Payment p " +
 	         "where p.date between ?1 and ?2")
 	public List<Payment> findLazyByDateBetween(Date beginning, Date end);
 	
 	@Query("select p from Payment p LEFT JOIN FETCH p.tags t " +
 	         "where p.date between ?1 and ?2")
-	public Set<Payment> findEagerByDateBetween(Date beginning, Date end);
+	public Set<Payment> findWithTagsByDateBetween(Date beginning, Date end);
 
 	@Query("select p from Payment p " +
 	         "where p.date > ?1")
