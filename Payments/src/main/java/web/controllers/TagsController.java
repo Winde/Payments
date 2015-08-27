@@ -1,6 +1,7 @@
 package web.controllers;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import model.dataobjects.Payment;
@@ -142,7 +143,17 @@ public class TagsController {
 				
 				List<Tag> existingTags = tagRepository.findAll();
 				
-				List<Tag> tags = Tag.createTags(tagString, existingTags, tagRepository);
+				List<Tag> tags = Tag.createTags(tagString, existingTags);
+				
+				List<Tag> paymentTags = payment.getTags();
+				
+				Iterator<Tag> iterator = tags.iterator();
+				while (iterator.hasNext()){
+					Tag tag = iterator.next();
+					if (paymentTags.contains(tag)) {
+						iterator.remove();
+					}
+				}
 				
 				if (tags==null || tags.isEmpty()) {
 					AjaxSignal signal = new AjaxSignal();
@@ -150,8 +161,14 @@ public class TagsController {
 					return signal;
 				}
 				
-				List<Tag> newTags = new ArrayList<>();
-				newTags.addAll(payment.getTags());
+				for (Tag tag: tags) {
+					tag.setUsage(tag.getUsage()+1);
+				}
+				tagRepository.save(tags);
+				
+				
+				List<Tag> newTags = new ArrayList<>();						
+				newTags.addAll(paymentTags);
 				newTags.addAll(tags);
 				payment.setTags(newTags);				
 				payments.save(payment);

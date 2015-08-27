@@ -87,7 +87,11 @@ public class PaymentsController {
 			}
 			 error = true;
 		} else {
-			List<Tag> paymentTags = Tag.createTags(paymentForm.getTags(), tags, tagRepository);
+			List<Tag> paymentTags = Tag.createTags(paymentForm.getTags(), tags);
+			for (Tag tag: tags) {
+				tag.setUsage(tag.getUsage()+1);
+			}
+			tagRepository.save(tags);
 			
 			User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			

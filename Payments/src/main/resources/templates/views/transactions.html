@@ -90,7 +90,11 @@
 					            for (var i = 0; i < nTrs.length; i++) {
 					                 var iDisplayIndex = oSettings._iDisplayStart + i;
 					                 var dataIndex = oSettings.aiDisplay[iDisplayIndex];
-					                 var value = oSettings.aoData[dataIndex]._aData[j];					                
+					                 var value = oSettings.aoData[dataIndex]._aData[j];
+					                 if (value!=null && value!=undefined) {
+					                	 value = value.replace(".","")
+					                	 value = value.replace(",",".")
+					                 }
 					                 var num = Number(value);
 					                 if (!isNaN(num) && value!=""){
 					                	 elements = true;
@@ -264,7 +268,7 @@
 											</select>
 										</form>									
 									</td>
-									<td class="currencyTableEntry col-md-1" th:text="${#numbers.formatDecimal(payment.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
+									<td class="currencyTableEntry col-md-1" th:text="${#numbers.formatDecimal(payment.realAmount,1,'POINT',2,'COMMA')}"></td>
 									<td class="col-md-4" th:text="${payment.comments}"></td>
 									<td class="col-md-3">
 										<a class="btn btn-default ajaxButton" th:each="tag : ${payment.tags}" data-behaviour-success="remove" data-behaviour-failure="message" href="#" th:href="@{/removeTag/{paymentId}/{tagName}(paymentId=${payment.id},tagName=${tag.name})}">
@@ -285,7 +289,7 @@
 								<tr th:each="incomeEntry : ${income}">							
 									<td class="col-md-1" th:text="${#calendars.format(incomeEntry.date,'dd/MM/yyyy')}"></td>						 
 									<td class="col-md-2"><span class="typeText show">Income</span></td>
-									<td class="currencyTableEntry col-md-1" th:text="${'-' + #numbers.formatDecimal(incomeEntry.realAmount, 1, 'COMMA', 2, 'POINT')}"></td>
+									<td class="currencyTableEntry col-md-1" th:text="${'-' + #numbers.formatDecimal(incomeEntry.realAmount,1,'POINT',2,'COMMA')}"></td>
 									<td class="col-md-4" th:text="${incomeEntry.comments}"></td>
 									<td class="col-md-3"></td>
 									<td class="col-md-1">										

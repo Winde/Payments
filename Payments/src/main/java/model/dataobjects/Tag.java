@@ -84,7 +84,7 @@ public class Tag {
 	}
 	
 
-	public static List<Tag> createTags(String tagString, List<Tag> existingTags, TagRepository tagRepository) {
+	public static List<Tag> createTags(String tagString, List<Tag> existingTags) {
 		
 		List<Tag> newTags = new ArrayList<>();
 		List<Tag> applyTags = new ArrayList<>();
@@ -96,17 +96,14 @@ public class Tag {
 				tag.setName(cleanedTag);
 				if (tag.isValid()){
 					int index = existingTags.indexOf(tag);
-					if (index>=0){
-						existingTags.get(index).setUsage(existingTags.get(index).getUsage()+1);
+					if (index>=0){						
 						applyTags.add(existingTags.get(index));
-					} else {					
-						tag.setUsage(tag.getUsage()+1);
+					} else {											
 						newTags.add(tag);
 					}
 				}
 			}																				
-			applyTags.addAll(newTags);			
-			tagRepository.save(applyTags);
+			applyTags.addAll(newTags);						
 		}
 		
 		return applyTags;
