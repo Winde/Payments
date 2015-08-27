@@ -158,6 +158,8 @@ public class TagsController {
 				
 				AjaxSignal signal = new AjaxSignal();
 				signal.establishSuccess();
+				signal.getPayload().put("tags", tags);
+				signal.getPayload().put("paymentId", id);
 				return signal;
 			} 		
 		} 

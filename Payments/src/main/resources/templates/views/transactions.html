@@ -271,7 +271,8 @@
 											<span  th:text="${tag.name}" class="tag"></span>											
 											<span class="glyphicon glyphicon-remove red-colored"></span>											
 										</a>
-										<form class="ajaxForm hide" data-behaviour-success="reload" action="/addtag" th:action="@{/addtag/{paymentId}(paymentId=${payment.id})}">
+										<form class="ajaxForm hide" data-behaviour-success="prototype" data-prototype="tags" action="/addtag" th:action="@{/addtag/{paymentId}(paymentId=${payment.id})}">
+											<input type="hidden" name="paymentId" value="${paymentId}" />
 											<input type="text" class="form-control tagsinput" name="tags" value="" />
 											<button type="submit">Done</button>
 										</form>
