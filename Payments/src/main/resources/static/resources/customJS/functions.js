@@ -16,3 +16,28 @@ function parseDateDDMMYYYY(dateCandidate,separator) {
 	}
 }
 
+function editButtonclick(element){	
+	var row = $(element).closest('tr');
+	var hidden = row.find('.hide')
+	var shown = row.find('.show');
+	hidden.removeClass('hide').addClass('show');
+	shown.removeClass('show').addClass('hide');
+}
+
+function cleanUpCategories(element) {
+	var brothers = $(element).closest('tr').find('.categoryName');	
+	var selectVal = $(element).find('select option:selected').text();	
+	$.each(brothers, function(index,node){
+		var target = $(node);
+		var nodeText = target.text();
+		console.log("*" + nodeText + "* ~ *" + selectVal);
+		if (selectVal!=nodeText) {
+			if (target.is('.typeText')){
+				target.remove();
+			} else {
+				target.closest('.typeText').remove();
+			}
+		} 
+	});
+	editButtonclick(element);
+}

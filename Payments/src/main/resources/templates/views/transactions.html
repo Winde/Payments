@@ -136,11 +136,7 @@
 				
 				
 				$('.editButton').click(function(){
-					var row = $(this).closest('tr');
-					var hidden = row.find('.hide')
-					var shown = row.find('.show');
-					hidden.removeClass('hide').addClass('show');
-					shown.removeClass('show').addClass('hide');
+					editButtonclick(this);
 				});
 			});
 			
@@ -250,19 +246,19 @@
 									<td class="col-md-2">
 										
 										<a class="typeText show" th:href="@{/impute/{id}(id=${payment.id})}" th:if="${(payment.type == T(model.dataobjects.PaymentType).ATMCheckout) and payment.amount>0}">
-											<span th:text="${payment.type!=null} ? ${payment.type.name} : 'Undefined'"></span>											
+											<span class="categoryName" th:text="${payment.type!=null} ? ${payment.type.name} : 'Undefined'"></span>											
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored"></span>											
 										</a>								
 										<a class="typeText show" th:href="@{/cart/{id}(id=${payment.id})}" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries}">
-											<span th:text="${payment.type.name}"></span>
+											<span class="categoryName" th:text="${payment.type.name}"></span>
 											<span class="glyphicon glyphicon-ok green-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and payment.fullyExplained!=null and payment.FullyExplained}"></span>
 											<span class="glyphicon glyphicon glyphicon-pencil red-colored" th:if="${payment.type == T(model.dataobjects.PaymentType).Groceries and (payment.fullyExplained==null or not payment.FullyExplained)}"></span>											
 										</a>
-										<span class="typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type!=null} ? ${payment.type.name} : ''"></span>
+										<span class="categoryName typeText show" th:if="${(payment.type != T(model.dataobjects.PaymentType).Groceries) and (payment.type != T(model.dataobjects.PaymentType).ATMCheckout or payment.amount == 0)}" th:text="${payment.type!=null} ? ${payment.type.name} : ''"></span>
 										
 										
 																												
-										<form class="autoSend typeSelect" th:classappend="${payment.type==null} ? show : hide" th:action="@{/typeTransaction}" >
+										<form class="ajaxForm autoSend typeSelect" data-behaviour-success="prototype" data-prototype="link-category" data-prototype-insert="insertBefore" data-behaviour-callback="cleanUpCategories" th:classappend="${payment.type==null} ? show : hide" th:action="@{/typeTransaction}" >
 											<input type="hidden" name="id" th:value="${payment.id}" />
 											<select name="type">
 												<option value="" th:selected="${ payment.type == null}">Unknown</option>
@@ -279,7 +275,7 @@
 											<span  th:text="${tag.name}" class="tag"></span>											
 											<span class="glyphicon glyphicon-remove red-colored"></span>											
 										</a>
-										<form class="ajaxForm hide" data-behaviour-success="prototype" data-prototype="tags" action="/addtag" th:action="@{/addtag/{paymentId}(paymentId=${payment.id})}">
+										<form class="ajaxForm hide" data-behaviour-success="prototype" data-prototype="tags" data-prototype-insert="insertBefore" action="/addtag" th:action="@{/addtag/{paymentId}(paymentId=${payment.id})}">
 											<input type="hidden" name="paymentId" value="${paymentId}" />
 											<input type="text" class="form-control tagsinput" name="tags" value="" />
 											<button type="submit">Done</button>

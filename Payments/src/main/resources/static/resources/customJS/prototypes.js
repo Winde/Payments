@@ -29,5 +29,85 @@ prototypes["tags"] = function(element,data,baseUrl){
 			html = html + tempHtml;
 		}
 	}
-	$(html).insertBefore(element);	
+	
+	findExecuteInsertFunction(html,element)
+};
+
+prototypes["text-category"] = function(element,data,baseUrl){
+	
+	var category = null;
+	if (data!=null && data!=undefined && data.payload!=null && data.payload!=undefined && data.payload.category!=null && data.payload.category!=undefined) {
+		category = data.payload.category;
+	}
+	if (baseUrl== undefined || baseUrl == null) {
+		baseUrl = "";
+	}
+	var html = "";
+	if (category!=null) {
+		html = '<span class="categoryName typeText hide">'+category+'</span>';
+	}
+
+	findExecuteInsertFunction(html,element);
 }
+
+prototypes["link-category"] = function(element,data,baseUrl){
+	
+	var category = null;
+	if (data!=null && data!=undefined && data.payload!=null && data.payload!=undefined && data.payload.category!=null && data.payload.category!=undefined) {
+		category = data.payload.category;
+	}
+	var payment= null;
+	if (data!=null && data!=undefined && data.payload!=null && data.payload!=undefined && data.payload.payment!=null && data.payload.payment!=undefined) {
+		payment = data.payload.payment;
+	}
+	if (baseUrl== undefined || baseUrl == null) {
+		baseUrl = "";
+	}
+	var html = "";
+	if (category!=null && payment!=null) {
+		console.log(payment.fullyExplained);
+		if (category == "Groceries"){
+			html = ''+
+				'<a class="typeText hide" href="'+baseUrl+'/cart/'+payment.id+'">'+
+					'<span class="categoryName">'+category+'</span>'+					
+					'<span class="glyphicon glyphicon glyphicon-pencil '+(payment.fullyExplained ? 'green-colored' : 'red-colored')+'"></span>'											
+				'</a>';
+		} else if(category == "ATM Checkout" && payment.amount!=undefined && payment.amount>0){
+			html = ''+
+				'<a class="typeText hide" href="'+baseUrl+'/impute/'+payment.id+'">'+
+					'<span class="categoryName">'+category+'</span>'+											
+					'<span class="glyphicon glyphicon glyphicon-pencil red-colored"></span>'+											
+				'</a>';
+		} else {
+			html = '<span class="categoryName typeText hide">'+category+'</span>';
+		}
+	}
+
+	findExecuteInsertFunction(html,element);
+}
+
+function findExecuteInsertFunction(html,element){
+	var insertStrategy = element.attr('data-prototype-insert');
+	if (insertStrategy!=null && insertStrategy!=undefined) {
+		var insertFunction = prototypesInsert[insertStrategy];
+		if (insertFunction!=null && insertFunction!=undefined) {
+			insertFunction(html,element);
+		}
+	}	
+}
+
+var prototypesInsert = {};
+
+prototypesInsert["replace"] = function(html, element){
+	$(element).replaceWith(html);
+};
+
+
+prototypesInsert["insert-hide"] = function(html, element){
+	$(html).insertBefore(element);
+	$(element).hide();	
+};
+
+prototypesInsert["insertBefore"] = function(html, element){
+	$(html).insertBefore(element);	
+};

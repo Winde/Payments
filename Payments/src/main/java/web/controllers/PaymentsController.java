@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import model.dataobjects.Cart;
 import model.dataobjects.IncomeEntry;
 import model.dataobjects.Payment;
 import model.dataobjects.PaymentType;
@@ -24,6 +25,7 @@ import model.dataobjects.reader.EVOReader;
 import model.dataobjects.reader.INGReader;
 import model.dataobjects.reader.StatementReader;
 import model.persistence.CartLineRepository;
+import model.persistence.CartRepository;
 import model.persistence.IncomeRepository;
 import model.persistence.PaymentRepository;
 import model.persistence.TagRepository;
@@ -39,11 +41,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import web.assisting.AjaxSignal;
 import web.assisting.Statistic;
 import web.forms.PaymentForm;
 import configuration.thymeleaf.templating.Layout;
@@ -60,6 +65,9 @@ public class PaymentsController {
 	
 	@Autowired
 	private CartLineRepository cartLines;
+	
+	@Autowired
+	private CartRepository cartRepository;
 	
 	@Autowired
 	private TagRepository tagRepository;
@@ -200,24 +208,44 @@ public class PaymentsController {
 	}
 	
 	@RequestMapping(value="/typeTransaction")
-    public String typeTransaction(@RequestParam("id") String id,@RequestParam("type") String type, Model model, HttpServletRequest request) {
+    public @ResponseBody AjaxSignal typeTransaction(@RequestParam("id") String id,@RequestParam("type") String type, Model model, HttpServletRequest request) {
 		
 		Long idNum = Long.parseLong(id);
 		Payment payment = payments.findOne(idNum);
 		
-		payment.setType(PaymentType.valueOf(type));
+		PaymentType paymentType = PaymentType.valueOf(type);
+		payment.setType(paymentType);
+		Cart cart = payment.getAssociatedDetails();
+		
+		if (cart!=null){			
+			if (cart.getLines()!=null) {
+				cartLines.delete(cart.getLines());
+			}
+			cartRepository.delete(cart);
+		}
+		
+		
+		payment.setFullyExplained(false);
+		payment.setAssociatedDetails(null);
 		
 		try {
 			payments.save(payment);
 		}catch (Exception ex){
 			ex.printStackTrace();
 			model.addAttribute("statusCode","error");
+			AjaxSignal signal = new AjaxSignal();
+			signal.establishFailure("Issue saving change");
 		}
 		
+		payment.setAccount(null);
+		payment.setAssociatedDetails(null);		
 		
-		String referer = request.getHeader("Referer");
-		return "redirect:"+ referer + "#transactions";
-
+		AjaxSignal signal = new AjaxSignal();
+		signal.establishSuccess();
+		signal.getPayload().put("category", paymentType.getName() );
+		signal.getPayload().put("payment", payment );
+		
+		return signal;
 	}
 	
 	@RequestMapping(value="/impute/{id}",  method=RequestMethod.GET)
@@ -301,7 +329,7 @@ public class PaymentsController {
 			model.addAttribute("statusCode","success");
 		}
 				
-		 return "views/impute/"+id;
+		return "views/impute";
 
 	}
 	

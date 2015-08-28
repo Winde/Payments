@@ -1,12 +1,19 @@
 var behaviours = {
 		"remove": function(item,data){
 			item.remove();
+			behaviourCallback(item);
 		},
 		"remove-parent" :function(item,data){
 			item.parent().remove();
+			behaviourCallback(item);
 		},
 		"reload": function(item,data){
 			location.reload();
+			behaviourCallback(item);
+		},
+		"replace-text": function(item,data) {
+			var target = item.attr('data-prototype');
+			behaviourCallback(item);
 		},
 		"prototype": function(item,data) {
 			var prototypeTarget = item.attr('data-prototype');
@@ -16,7 +23,19 @@ var behaviours = {
 					prototype(item,data);
 				}				
 			}
+			behaviourCallback(item);
 		}		
+}
+
+function behaviourCallback(item){
+	console.log("exeuctin-callback");
+	var callbackName = $(item).attr('data-behaviour-callback');
+	if (callbackName!=null && callbackName!=undefined) {
+		var callback = window[callbackName];
+		if (callback!=undefined && callback!=null) {
+			window[callbackName](item);
+		}
+	}
 }
 
 function behaviourSuccess(current, data){
