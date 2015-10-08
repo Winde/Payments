@@ -35,7 +35,7 @@ public class TagsController {
 	@RequestMapping(value="/tags")
     public String tags(Model model) {
 		
-		List<Tag> tags = tagRepository.findAllUsed();
+		List<Tag> tags = tagRepository.findAllWithUsage();
 		model.addAttribute("tags", tags);
         return "views/tags";
     }

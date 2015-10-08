@@ -1,9 +1,11 @@
 package model.persistence;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +24,6 @@ public class TagRepositoryImpl implements TagRepositoryCustom {
 	public Iterable<Tag> saveAndAddUsage(Iterable<Tag> tags) {			
 		for (Tag tag: tags) {						
 			tag = entityManager.merge(tag);
-			if (tag.getUsage()==null || tag.getUsage()<0){
-				tag.setUsage(new Long(0));
-			}			
-			tag.setUsage(tag.getUsage()+1);
 			entityManager.persist(tag);			
 		}						
 		return tags;
@@ -34,14 +32,25 @@ public class TagRepositoryImpl implements TagRepositoryCustom {
 	@Transactional
 	public Tag saveAndDecreaseUsage(Tag tag) {		
 		entityManager.merge(tag);		
-		if (tag.getUsage()==null || tag.getUsage()<=0){
-			tag.setUsage(new Long(0));
-		} else {
-			tag.setUsage(tag.getUsage()-1);
-		}			
 		repository.save(tag);			
 		return tag;
 	}
 
-	
+	public List<Tag> findAllWithUsage() {
+		String sql = "SELECT tags_name name,COUNT(payment_id) instances_used "+
+						"FROM payment_tags "+
+						"GROUP BY tags_name "+
+						"HAVING COUNT(payment_id) > 0";
+		
+		Query query = entityManager.createNativeQuery(sql, Tag.class);
+		
+		
+		List<Tag> result = query.getResultList();
+		
+		
+		Collections.sort(result,Collections.reverseOrder());
+		return result;
+		
+	}
+
 }

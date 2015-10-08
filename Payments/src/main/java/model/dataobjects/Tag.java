@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import model.persistence.TagRepository;
 
 @Entity
-public class Tag {
+public class Tag implements Comparable<Tag>{
 	
 	@Id
 	@Column(unique=true)
@@ -20,12 +20,15 @@ public class Tag {
 	
 	@OneToMany(fetch=FetchType.LAZY)
 	private List<Payment> payments;
-
-	@Column(name="instances")
-	private Long usage;
 	
-	public Tag(){
-		usage = new Long(0);
+	private Long instancesUsed = null;
+	
+	public Tag(){		
+	}
+	
+	public Tag(String name,Long instancesUsed){
+		this.name=name;
+		this.instancesUsed= instancesUsed;
 	}
 	
 	public String getName() {
@@ -48,12 +51,8 @@ public class Tag {
 		return candidate;
 	}
 
-	public Long getUsage() {
-		return usage;
-	}
-
-	public void setUsage(Long usage) {
-		this.usage = usage;
+	public Long getInstancesUsed() {
+		return instancesUsed;
 	}
 
 	public List<Payment> getPayments() {
@@ -80,7 +79,7 @@ public class Tag {
 	}
 	
 	public String toString(){
-		return "[" + this.getName() + "(" + this.getUsage() + ") ]";		
+		return "[" + this.getName() + "(" + this.getInstancesUsed() + ") ]";		
 	}
 	
 
@@ -108,5 +107,16 @@ public class Tag {
 		
 		return applyTags;
 		
+	}
+
+	@Override
+	public int compareTo(Tag o) {
+		if (this.getInstancesUsed()==null) {
+			return -1;
+		} else if (o.getInstancesUsed()==null) {
+			return 1;
+		} else {
+			return this.getInstancesUsed().compareTo(o.getInstancesUsed());
+		}
 	}
 }

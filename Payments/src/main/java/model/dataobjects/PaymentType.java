@@ -8,6 +8,7 @@ public enum PaymentType implements Comparable<PaymentType>{
 	Eating_Out("Eating Out"),
 	Electricity("Electricity"),
 	Entertainment("Entertainment"),
+	Furniture("Furniture"),
 	Gas("Gas"),
 	Groceries("Groceries"),
 	Internet_Phone("Internet & Phone"),
