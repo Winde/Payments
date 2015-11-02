@@ -75,9 +75,7 @@ public class TagsController {
 			payment = payments.findOne(id);		
 		}
 		
-		if (payment!=null) {
-			payment.getTags();
-		}
+		payment.getTags();
 		return payment;				
 	}
 	

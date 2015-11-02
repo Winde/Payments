@@ -17,9 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class INGReader implements StatementReader{
 
 	private final int headerLines = 4;

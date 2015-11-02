@@ -9,15 +9,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
 import au.com.bytecode.opencsv.CSVReader;
 import model.dataobjects.IncomeEntry;
 import model.dataobjects.Payment;
 import model.dataobjects.User;
 import model.statistics.Movements;
 
-@Component
 public class EVOReader implements StatementReader{
 	
 	public  Movements getMovements(User account, InputStream data) {
